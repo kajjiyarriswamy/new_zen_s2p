@@ -1,0 +1,828 @@
+{
+  "info": {
+    "name": "Procurement Microservices API Collection",
+    "_postman_id": "2e7c1e8f-5fd1-4d55-b0ee-522eb2fc13f6",
+    "description": "Collection covering API endpoints for API Gateway, Admin, Budget, Vendor, User, PR, and PO services.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "API Gateway",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/auth/login",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Service",
+      "item": [
+        {
+          "name": "Get All Organizations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/orgs/all",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "orgs", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Organization by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/orgs/{{orgId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "orgs", "{{orgId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Organization",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orgName\": \"Acme Corporation\",\n  \"orgCode\": \"ACME\",\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/orgs/create",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "orgs", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Organization",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orgName\": \"Updated Org\",\n  \"orgCode\": \"UPDATED\",\n  \"lastUpdatedBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/orgs/{{orgId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "orgs", "{{orgId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/roles/all",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "roles", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/roles/{{roleId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "roles", "{{roleId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\": \"Department_user\",\n  \"roleDescription\": \"Can submit PRs and view budgets\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/roles/create",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "roles", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\": \"Finance_Manager\",\n  \"roleDescription\": \"Finance approval role\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/roles/{{roleId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "roles", "{{roleId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Payment Terms",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/payment-terms/all",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "payment-terms", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Term by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{adminUrl}}/admin/payment-terms/{{paymentTermId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "payment-terms", "{{paymentTermId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Payment Term",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentTerm\": \"TERM_30\",\n  \"paymentDescription\": \"Payment due after thirty days\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/payment-terms/create",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "payment-terms", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment Term",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentTerm\": \"TERM_60\",\n  \"paymentDescription\": \"Payment due after sixty days\"\n}"
+            },
+            "url": {
+              "raw": "{{adminUrl}}/admin/payment-terms/{{paymentTermId}}",
+              "host": ["{{adminUrl}}"],
+              "path": ["admin", "payment-terms", "{{paymentTermId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget Service",
+      "item": [
+        {
+          "name": "Get All Budgets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{budgetUrl}}/budget/all",
+              "host": ["{{budgetUrl}}"],
+              "path": ["budget", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Budget by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{budgetUrl}}/budget/{{budgetId}}",
+              "host": ["{{budgetUrl}}"],
+              "path": ["budget", "{{budgetId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budgetId\": \"BUD_001\",\n  \"budgetDescription\": \"Marketing budget Q2\",\n  \"requestor\": \"jdoe\",\n  \"orgId\": \"ORG_001\",\n  \"approverList\": \"approver1,approver2\",\n  \"availableAmount\": 50000.0,\n  \"consumedAmount\": 10000.0,\n  \"totalAmount\": 60000.0,\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{budgetUrl}}/budget/create",
+              "host": ["{{budgetUrl}}"],
+              "path": ["budget", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Budget Status",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{budgetUrl}}/budget/{{budgetId}}/status?status=APPROVED",
+              "host": ["{{budgetUrl}}"],
+              "path": ["budget", "{{budgetId}}", "status"],
+              "query": [{ "key": "status", "value": "APPROVED" }]
+            }
+          }
+        },
+        {
+          "name": "Update Budget",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budgetDescription\": \"Revised marketing budget\",\n  \"requestor\": \"jdoe\",\n  \"orgId\": \"ORG_001\",\n  \"approverList\": \"approver1,approver2\",\n  \"availableAmount\": 45000.0,\n  \"consumedAmount\": 15000.0,\n  \"totalAmount\": 60000.0,\n  \"lastUpdatedBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{budgetUrl}}/budget/{{budgetId}}",
+              "host": ["{{budgetUrl}}"],
+              "path": ["budget", "{{budgetId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendor Service",
+      "item": [
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/all",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/{{vendorId}}",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "{{vendorId}}"]
+            }
+          }
+        },
+        {
+          "name": "Vendor Signup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Supplier A Pvt Ltd\",\n  \"emailId\": \"supplierA@example.com\",\n  \"password\": \"secretpass\",\n  \"address\": \"123 Vendor St\",\n  \"pan\": \"PAN001\",\n  \"tan\": \"TAN001\",\n  \"companyRegistrationDate\": \"2025-01-01\",\n  \"userRegistered\": \"supplier_admin\",\n  \"logoPath\": \"/files/logo.png\",\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/signup",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Supplier A Pvt Ltd\",\n  \"emailId\": \"supplierA@example.com\",\n  \"password\": \"newpass\",\n  \"address\": \"456 Vendor Ave\",\n  \"pan\": \"PAN001\",\n  \"tan\": \"TAN001\",\n  \"companyRegistrationDate\": \"2025-01-01\",\n  \"userRegistered\": \"supplier_admin\",\n  \"logoPath\": \"/files/logo.png\",\n  \"lastUpdatedBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/{{vendorId}}",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "{{vendorId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor Contacts by Vendor",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/contacts/vendor/{{venId}}",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "contacts", "vendor", "{{venId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Vendor Contact",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ravi Kumar\",\n  \"designation\": \"Sales Manager\",\n  \"phone\": \"+1234567890\",\n  \"emailId\": \"ravi@example.com\",\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/contacts/vendor/{{venId}}/create",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "contacts", "vendor", "{{venId}}", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get Vendor Banks by Vendor",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/banks/vendor/{{venId}}",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "banks", "vendor", "{{venId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Vendor Bank",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bankName\": \"HDFC Bank\",\n  \"ifscCode\": \"HDFC0001234\",\n  \"accountNumber\": \"123456789012\",\n  \"branch\": \"Mumbai\",\n  \"documentPath\": \"/files/bank-proof.pdf\",\n  \"accountHolderName\": \"Supplier A Pvt Ltd\",\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{vendorUrl}}/vendor/banks/vendor/{{venId}}/create",
+              "host": ["{{vendorUrl}}"],
+              "path": ["vendor", "banks", "vendor", "{{venId}}", "create"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{userUrl}}/user/all",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{userUrl}}/user/{{userId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"userName\": \"jdoe\",\n  \"designation\": \"Procurement_officer\",\n  \"emailId\": \"jdoe@example.com\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"123 Main St\",\n  \"userStatus\": \"ACTIVE\",\n  \"userType\": \"INTERNAL\",\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{userUrl}}/user/create",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{userUrl}}/user/{{userId}}/status?status=ACTIVE",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "{{userId}}", "status"],
+              "query": [{ "key": "status", "value": "ACTIVE" }]
+            }
+          }
+        },
+        {
+          "name": "Get User Org Mappings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/org/{{userId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "org", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Role Mappings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/role/{{userId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "role", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Vendor Mappings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/vendor/{{userId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "vendor", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Link User to Org",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/org/{{userId}}/{{orgId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "org", "{{userId}}", "{{orgId}}"]
+            }
+          }
+        },
+        {
+          "name": "Link User to Role",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/role/{{userId}}/{{roleId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "role", "{{userId}}", "{{roleId}}"]
+            }
+          }
+        },
+        {
+          "name": "Link User to Vendor",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{userUrl}}/user/mapping/vendor/{{userId}}/{{vendorId}}",
+              "host": ["{{userUrl}}"],
+              "path": ["user", "mapping", "vendor", "{{userId}}", "{{vendorId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PR Service",
+      "item": [
+        {
+          "name": "Get All PRs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{prUrl}}/pr/all",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get PR by Number",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prNumber}}",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prNumber}}"]
+            }
+          }
+        },
+        {
+          "name": "Create PR",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prNumber\": \"PR_001\",\n  \"department\": \"Procurement\",\n  \"requester\": \"jdoe\",\n  \"budget\": 30000.0,\n  \"status\": \"SUBMITTED\",\n  \"description\": \"Purchase request for new laptops\"\n}"
+            },
+            "url": {
+              "raw": "{{prUrl}}/pr/create",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get PR Lines",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prNumber}}/lines",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prNumber}}", "lines"]
+            }
+          }
+        },
+        {
+          "name": "Add PR Line",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prLineId\": \"PRL_001\",\n  \"item\": \"Laptop\",\n  \"uom\": \"EA\",\n  \"qty\": 10,\n  \"unitCost\": 1500.0,\n  \"taxPercentage\": 18.0,\n  \"totalCost\": 17700.0,\n  \"category\": \"Hardware\",\n  \"prNumber\": \"PR_001\"\n}"
+            },
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prNumber}}/lines",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prNumber}}", "lines"]
+            }
+          }
+        },
+        {
+          "name": "Update PR Status",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prId}}/status?status=APPROVED",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prId}}", "status"],
+              "query": [{ "key": "status", "value": "APPROVED" }]
+            }
+          }
+        },
+        {
+          "name": "Approve PR",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prId}}/approve",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prId}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Decide PR",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{prUrl}}/pr/{{prNumber}}/decision?action=approve&approver=admin",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "{{prNumber}}", "decision"],
+              "query": [
+                { "key": "action", "value": "approve" },
+                { "key": "approver", "value": "admin" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PR Service Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{prUrl}}/pr/health",
+              "host": ["{{prUrl}}"],
+              "path": ["pr", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PO Service",
+      "item": [
+        {
+          "name": "Get All POs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{poUrl}}/po/all",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get PO by Number",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{poUrl}}/po/{{poNumber}}",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "{{poNumber}}"]
+            }
+          }
+        },
+        {
+          "name": "Create PO",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poNumber\": \"PO_001\",\n  \"vendor\": \"VEND_001\",\n  \"amount\": 17700.0,\n  \"description\": \"Purchase order for laptops\"\n}"
+            },
+            "url": {
+              "raw": "{{poUrl}}/po/create",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "create"]
+            }
+          }
+        },
+        {
+          "name": "Create PO from PR",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poNumber\": \"PO_002\",\n  \"vendor\": \"VEND_001\",\n  \"amount\": 17700.0,\n  \"description\": \"PO created from approved PR\"\n}"
+            },
+            "url": {
+              "raw": "{{poUrl}}/po/create-from-pr/{{prNumber}}",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "create-from-pr", "{{prNumber}}"]
+            }
+          }
+        },
+        {
+          "name": "Get PO Lines",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{poUrl}}/po/{{poNumber}}/lines",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "{{poNumber}}", "lines"]
+            }
+          }
+        },
+        {
+          "name": "Add PO Line",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poLineId\": \"POL_001\",\n  \"item\": \"Laptop\",\n  \"uom\": \"EA\",\n  \"qty\": 10,\n  \"unitCost\": 1500.0,\n  \"taxPercentage\": 18.0,\n  \"totalCost\": 17700.0,\n  \"category\": \"Hardware\",\n  \"receivedQty\": 0,\n  \"createdBy\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{poUrl}}/po/{{poNumber}}/lines",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "{{poNumber}}", "lines"]
+            }
+          }
+        },
+        {
+          "name": "Update PO Status",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{poUrl}}/po/{{poId}}/status?status=APPROVED",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "{{poId}}", "status"],
+              "query": [{ "key": "status", "value": "APPROVED" }]
+            }
+          }
+        },
+        {
+          "name": "PO Service Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{poUrl}}/po/health",
+              "host": ["{{poUrl}}"],
+              "path": ["po", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "gatewayUrl",
+      "value": "http://localhost:8080",
+      "description": "API Gateway base URL"
+    },
+    {
+      "key": "adminUrl",
+      "value": "http://localhost:8081",
+      "description": "Admin Service base URL"
+    },
+    {
+      "key": "budgetUrl",
+      "value": "http://localhost:8082",
+      "description": "Budget Service base URL"
+    },
+    {
+      "key": "vendorUrl",
+      "value": "http://localhost:8083",
+      "description": "Vendor Service base URL"
+    },
+    {
+      "key": "userUrl",
+      "value": "http://localhost:8084",
+      "description": "User Service base URL"
+    },
+    {
+      "key": "prUrl",
+      "value": "http://localhost:8085",
+      "description": "PR Service base URL"
+    },
+    {
+      "key": "poUrl",
+      "value": "http://localhost:8086",
+      "description": "PO Service base URL"
+    },
+    {
+      "key": "orgId",
+      "value": "ORG_001",
+      "description": "Example organization ID"
+    },
+    {
+      "key": "roleId",
+      "value": "ROLE_1",
+      "description": "Example role ID"
+    },
+    {
+      "key": "paymentTermId",
+      "value": "TERM_30",
+      "description": "Example payment term ID"
+    },
+    {
+      "key": "budgetId",
+      "value": "BUD_001",
+      "description": "Example budget ID"
+    },
+    {
+      "key": "vendorId",
+      "value": "VEND_001",
+      "description": "Example vendor ID"
+    },
+    {
+      "key": "venId",
+      "value": "VEND_001",
+      "description": "Vendor ID for contact/bank endpoints"
+    },
+    {
+      "key": "userId",
+      "value": "USER_001",
+      "description": "Example user ID"
+    },
+    {
+      "key": "prNumber",
+      "value": "PR_001",
+      "description": "Example PR number"
+    },
+    {
+      "key": "poNumber",
+      "value": "PO_001",
+      "description": "Example PO number"
+    },
+    {
+      "key": "poId",
+      "value": "1",
+      "description": "Example PO database ID"
+    }
+  ]
+}

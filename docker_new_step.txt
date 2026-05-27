@@ -1,0 +1,56 @@
+1)docker-compose.kafka.yml
+->file name
+->should be contain the broker and zookeeper information
+
+2)docker compose up -d or docker compose -f docker-compose.kafka.yml up -d(with file name) 
+->above docker-compose.kafka.yml is the file name
+->Starts:
+    ->Zookeeper
+    ->kafka1
+    ->kafka2
+    ->kafka3
+	
+3)docker ps  
+->Verify Running Containers
+
+4)docker exec -it kafka1 bash
+->Open Kafka broker shell:
+
+5)kafka-topics \--create \--topic sample-topic_name \--partitions 3 \--replication-factor 3 \--bootstrap-server broker1:9001
+->Kafka creates:
+pr-topic
+ ├── Partition 0
+ ├── Partition 1
+ └── Partition 2
+ 
+6)kafka-topics \--list \--bootstrap-server kafka1:29092
+->Verify Topic Created
+
+7)kafka-topics \--describe \--topic pr-topic \--bootstrap-server kafka1:29092
+->Topic: pr-topic
+PartitionCount:3
+ReplicationFactor:3
+
+8)kafka-console-consumer \--topic pr-approved \--from-beginning \--bootstrap-server kafka1:29092
+->Reads old messages from offset 0.
+->here the kafka can be run in two ports 9092 or 29092
+
+9)kafka-console-consumer \--topic pr-topic \--group pr-group \--bootstrap-server kafka1:29092
+->Kafka creates:Consumer Group = pr-group
+->Tracks:offsets,lag,partition assignment
+
+10)kafka-consumer-groups \--bootstrap-server kafka1:29092 \--list
+->Check Consumer Groups
+
+11)kafka-consumer-groups \--bootstrap-server kafka1:29092 \--describe \--group pr-group
+->Describe Consumer Group
+->Also shows:CURRENT-OFFSET LOG-END-OFFSET LAG
+
+12)kafka-topics \--delete \--topic pr-topic \--bootstrap-server kafka1:29092
+->Delete Topic
+
+13)exit
+->Exit container
+
+14)docker compose down or docker compose -f docker-compose.kafka.yml down(with file name)
+->Stop Kafka cluster

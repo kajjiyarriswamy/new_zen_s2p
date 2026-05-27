@@ -1,0 +1,66 @@
+Steps to install the Kafka in local:
+->Install Docker desktop
+->create a folder or move the project folder 
+->Inside the folder create docker compose file: docker-compose.kafka.yml
+->docker compose -f docker-compose.kafka.yml up -d  (To start the kafka and zookeeper)
+->docker ps (To check the running containiners)
+->docker compose -f docker-compose.kafka.yml down (To stop the containers) or
+
+ docker compose -f docker-compose.kafka.yml down --remove-orphans
+ 
+->docker ps -a (To check the containiners stped or not)
+
+->docker compose -f docker-compose.kafka.yml up -d
+->docker ps
+//->docker exec -it microservices-project-kafka-1 bash
+
+->docker exec -it kafka1 bash
+
+creation of topic
+
+kafka-topics \--create \--topic pr-topic \--partitions 3 \--replication-factor 3 \--bootstrap-server localhost:9092,localhost:9093,localhost:9094
+
+->kafka-topics --list --bootstrap-server kafka1:9092 (This shows all topics)
+
+
+kafka-topics --describe --topic pr-topic --bootstrap-server kafka1:9092 | grep PartitionCount (If you want only partition count)
+kafka-console-consumer \--topic pr-topic \--from-beginning \--bootstrap-server kafka1:9092
+kafka-console-consumer \--topic pr-approved \--from-beginning \--bootstrap-server kafka1:9092
+kafka-console-consumer \--topic pr-approved \--from-beginning \--bootstrap-server localhost:9092
+
+
+New Steps
+docker compose -f docker-compose.kafka.yml up -d --force-recreate
+kafka-topics \--create \--topic pr-topic \--partitions 3 \--replication-factor 3 \--bootstrap-server localhost:9092,localhost:9093,localhost:9094
+
+
+# List topics
+kafka-topics --list --bootstrap-server localhost:9092
+
+# Describe topic partitions & leaders
+kafka-topics --describe --topic pr-approved --bootstrap-server localhost:9092
+
+//kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+//kafka-consumer-groups --bootstrap-server localhost:9092 --describe --group budget-service-group
+
+# Show latest offsets per partition
+kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic pr-approved --time -1
+
+# Consume messages from beginning (stop with Ctrl+C)
+kafka-console-consumer --topic pr-approved --from-beginning --bootstrap-server localhost:9092
+
+# Consume N messages only
+kafka-console-consumer --topic pr-approved --from-beginning --max-messages 10 --bootstrap-server localhost:9092
+
+# Check consumer group committed offsets and lag
+kafka-consumer-groups --bootstrap-server localhost:9092 --describe --group pr-service-group
+or
+kafka-consumer-groups --bootstrap-server kafka1:29092 --describe --group budget-service-group
+
+
+
+docker exec kafka1 kafka-topics --list --bootstrap-server kafka1:29092
+docker exec kafka1 kafka-topics --describe --topic pr-approved --bootstrap-server kafka1:29092
+docker exec kafka1 kafka-run-class kafka.tools.GetOffsetShell --broker-list kafka1:29092 --topic pr-approved --time -1
+docker exec kafka1 kafka-console-consumer --topic pr-approved --from-beginning --bootstrap-server kafka1:29092 --max-messages 20
+docker exec kafka1 kafka-consumer-groups --bootstrap-server kafka1:29092 --describe --group pr-service-group
