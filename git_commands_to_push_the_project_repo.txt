@@ -1,0 +1,10 @@
+create one repository in your github ex:https://github.com/kajjiyarriswamy/new_zen_s2p.git
+1) Open Terminal Inside Project Folder
+2)git init
+3)git status
+4)git add .
+5)git commit -m "Initial project commit"
+6)git remote add origin https://github.com/kajjiyarriswamy/new_zen_s2p.git
+7)git remote -v
+8)git branch -M main
+9)git push -u origin main
