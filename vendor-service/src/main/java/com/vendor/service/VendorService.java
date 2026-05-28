@@ -66,6 +66,7 @@ public class VendorService {
     public ApiResponse<VendorDetails> updateVendor(String id, VendorDetails vendorDetails) {
         try {
             if (id == null || id.isEmpty()) {
+            	System.out.println("Hello world");
                 return ApiResponse.badRequest("Vendor id is required");
             }
             vendorDetails.setId(id);
@@ -75,3 +76,6 @@ public class VendorService {
             return ApiResponse.internalError("Error updating vendor");
         }
     }
+    
+  
+}
