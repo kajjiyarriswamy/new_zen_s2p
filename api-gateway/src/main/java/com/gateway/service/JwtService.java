@@ -20,6 +20,11 @@ public class JwtService {
     private Key getKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
+    
+    public void m1()
+    {
+    	
+    }
 
     public String generateToken(String username, String role) {
         logger.info("Generating JWT token for user: {} with role: {}", username, role);
