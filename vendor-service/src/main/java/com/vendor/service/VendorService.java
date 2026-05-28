@@ -66,7 +66,7 @@ public class VendorService {
     public ApiResponse<VendorDetails> updateVendor(String id, VendorDetails vendorDetails) {
         try {
             if (id == null || id.isEmpty()) {
-            	System.out.println("Hello world");
+            	System.out.println("Hello hyd");
                 return ApiResponse.badRequest("Vendor id is required");
             }
             vendorDetails.setId(id);
