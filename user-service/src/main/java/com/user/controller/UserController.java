@@ -27,7 +27,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDetails>> getUserById(@PathVariable String id) {
         ApiResponse<UserDetails> resp = userService.getUserById(id);
-        System.out.println("Hello");
+        System.out.println("Hello word");
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
 
