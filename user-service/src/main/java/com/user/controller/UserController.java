@@ -27,6 +27,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDetails>> getUserById(@PathVariable String id) {
         ApiResponse<UserDetails> resp = userService.getUserById(id);
+        System.out.println("Hello");
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
 
@@ -42,4 +43,5 @@ public class UserController {
         ApiResponse<UserDetails> resp = userService.updateUserStatus(id, status);
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
+    
 }
