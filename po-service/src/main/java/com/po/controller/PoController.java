@@ -280,7 +280,7 @@ public class PoController {
     
     @GetMapping("/healths")
     public ResponseEntity<ApiResponse<String>> healths() {
-        logger.info("PO Service health check");
+        logger.info("PO Service health");
         return ResponseEntity.ok(ApiResponse.success("PO Service is running", "Health check successful"));
     }
 }
