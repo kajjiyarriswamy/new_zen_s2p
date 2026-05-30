@@ -260,4 +260,22 @@ public class PrService {
             return ApiResponse.internalError("Error applying decision to PR");
         }
     }
+
+    public String firstMsg(){
+        try {
+            kafkaProducer.sendMessage("pr-message", "Kafka first message");
+            return "1st message sent";
+        } catch (Exception e) {
+            return "1st message not sent";
+        }
+    }
+
+    public String secondMsg(){
+        try {
+            kafkaProducer.sendMessage("pr-message2", "Kafka second message");
+            return "2nd message sent";
+        } catch (Exception e) {
+            return "2nd message not sent";
+        }
+    }
 }

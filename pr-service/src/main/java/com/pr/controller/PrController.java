@@ -87,5 +87,14 @@ public class PrController {
         ApiResponse<PrData> resp = prService.decidePurchaseRequest(prNumber, action, approver);
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
+
+    @GetMapping("/message/1")
+    public String message1(){
+        return prService.firstMsg();
+    }
+    @GetMapping("/message/2")
+    public String message2(){
+        return prService.secondMsg();
+    }
 }
 
