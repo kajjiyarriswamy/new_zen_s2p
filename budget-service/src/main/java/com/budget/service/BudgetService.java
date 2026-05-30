@@ -193,4 +193,10 @@ public class BudgetService {
             logger.error("Error updating budget status", e);
         }
     }
+    
+    
+    private void getTestMethod() {
+    	System.out.println("Test");
+    	System.out.println("Test");
+    }
 }
