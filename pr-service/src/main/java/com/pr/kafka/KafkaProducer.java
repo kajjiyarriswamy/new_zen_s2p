@@ -25,4 +25,13 @@ public class KafkaProducer {
             logger.error("Failed to send kafka message", e);
         }
     }
+
+    public void sendMessage(String topic, String message){
+        try {
+            kafkaTemplate.send(topic, message);
+            logger.info("Sent kafka message to {}: {}", topic, message);
+        } catch (Exception e) {
+            logger.error("Failed to send kafka message", e);
+        }
+    }
 }

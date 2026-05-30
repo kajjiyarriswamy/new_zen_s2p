@@ -35,4 +35,14 @@ public class KafkaConsumer {
         budgetService.updateBudgetAmount(event);
         logger.info("ID: {}, Budget: {}", id, budget);
     }
+
+    @KafkaListener(topics = "pr-message", groupId = "budget-service-group")
+    public void displayMessage(String message){
+        logger.info("1st Received message: {}", message);
+    }
+
+    @KafkaListener(topics = "pr-message2", groupId = "budget-service-group")
+    public void displayMessage2(String message){
+        logger.info("2nd Received message: {}", message);
+    }
 }
