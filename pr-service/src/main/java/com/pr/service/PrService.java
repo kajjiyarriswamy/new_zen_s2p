@@ -126,6 +126,7 @@ public class PrService {
         } catch (Exception e) {
             logger.error("Error fetching PR lines", e);
             return ApiResponse.internalError("Error fetching PR lines");
+            
         }
     }
 
