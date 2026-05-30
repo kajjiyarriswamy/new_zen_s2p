@@ -224,6 +224,12 @@ public class PrService {
             Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
             if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
             PrHeader header = opt.get();
+            if ("APPROVED".equalsIgnoreCase(header.getStatus())) {
+
+                return ApiResponse.badRequest(
+                    "Approved PR cannot be modified");
+            }
+
 
             String act = action == null ? "" : action.trim().toLowerCase();
             switch (act) {

@@ -64,7 +64,7 @@ public class BudgetController {
         }
 
         BudgetHeaderEntity e = toEntity(budgetHeader);
-        e.setStatus("SUBMITTED");
+        e.setStatus("ACTIVE");
         e.setCreatedTime(LocalDateTime.now());
         budgetHeaderRepository.save(e);
 
@@ -145,8 +145,9 @@ public class BudgetController {
         e.setOrgName(d.getOrgId());
         e.setApproverList(d.getApproverList());
         e.setStatus(d.getStatus());
-        e.setAvailableAmount(d.getAvailableAmount());
-        e.setConsumedAmount(d.getConsumedAmount());
+        e.setAvailableAmount(d.getTotalAmount());
+        e.setConsumedAmount(0.0);
+        e.setReservedAmount(0.0);
         e.setTotalAmount(d.getTotalAmount());
         e.setCreatedBy(d.getCreatedBy());
         e.setLastUpdatedBy(d.getLastUpdatedBy());
