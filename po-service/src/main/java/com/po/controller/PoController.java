@@ -277,5 +277,11 @@ public class PoController {
         logger.info("PO Service health check");
         return ResponseEntity.ok(ApiResponse.success("PO Service is running", "Health check successful"));
     }
+    
+    @GetMapping("/healths")
+    public ResponseEntity<ApiResponse<String>> healths() {
+        logger.info("PO Service health");
+        return ResponseEntity.ok(ApiResponse.success("PO Service is running", "Health check successful"));
+    }
 }
 
