@@ -108,6 +108,46 @@ public class PoController {
         }
     }
 
+    @GetMapping("/pr/{prNumber}")
+    public ResponseEntity<ApiResponse<PoData>> getPurchaseRequestByPrNumber(
+            @PathVariable String prNumber) {
+
+        logger.info("Fetching Purchase Request with PR number: {}", prNumber);
+
+        try {
+            if (prNumber == null || prNumber.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.badRequest("PR number is required"));
+            }
+
+            Optional<PoHeader> opt = poHeaderRepository.findByPrNumber(prNumber);
+
+            if (!opt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.notFound("Purchase Request not found"));
+            }
+
+            PoHeader h = opt.get();
+
+            PoData p = new PoData();
+            p.setId(h.getId() == null ? null : String.valueOf(h.getId()));
+            p.setPoNumber(h.getPoNumber());
+            p.setVendor(h.getVendorId());
+            p.setAmount(h.getAmount() == null ? 0.0 : h.getAmount());
+            p.setStatus(h.getStatus());
+            p.setDescription(h.getPoDescription());
+
+            return ResponseEntity.ok(
+                    ApiResponse.success(p, "Purchase Request retrieved successfully"));
+
+        } catch (Exception e) {
+            logger.error("Error fetching purchase request", e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.internalError("Error fetching purchase request"));
+        }
+    }
+
     // Create Purchase Order
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<PoData>> createPurchaseOrder(@RequestBody PoData poData) {
