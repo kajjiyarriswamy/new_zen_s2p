@@ -10,21 +10,26 @@ public class PrData {
     private String status;
     private String description;
     private String budgetId;
+    private String budgetName;
 
     public PrData() {
     }
 
-    public PrData(String id, String prNumber, String department, String requester, double budget, String status, String description) {
-        this.id = id;
-        this.prNumber = prNumber;
-        this.department = department;
-        this.requester = requester;
-        this.budget = budget;
-        this.status = status;
-        this.description = description;
-    }
+   
 
-    public String getId() {
+    public String getBudgetName() {
+		return budgetName;
+	}
+
+
+
+	public void setBudgetName(String budgetName) {
+		this.budgetName = budgetName;
+	}
+
+
+
+	public String getId() {
         return id;
     }
 

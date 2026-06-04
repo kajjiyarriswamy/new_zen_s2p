@@ -87,5 +87,6 @@ public class PrController {
         ApiResponse<PrData> resp = prService.decidePurchaseRequest(prNumber, action, approver);
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
+    
 }
 

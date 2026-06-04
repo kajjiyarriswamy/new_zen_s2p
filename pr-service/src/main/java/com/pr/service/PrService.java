@@ -1,6 +1,7 @@
 package com.pr.service;
 
 import com.pr.dto.ApiResponse;
+import com.pr.dto.BudgetDTO;
 import com.pr.dto.PrData;
 import com.pr.dto.PrLineData;
 import com.pr.entity.PrHeader;
@@ -25,13 +26,16 @@ public class PrService {
     private final KafkaProducer kafkaProducer;
     private final PrHeaderRepository prHeaderRepository;
     private final PrLineRepository prLineRepository;
+    private final BudgetClientService service;
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository) {
+                     PrLineRepository prLineRepository, BudgetClientService service) {
+    	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
         this.prLineRepository = prLineRepository;
+        this.service= service;
     }
 
     public ApiResponse<List<PrData>> getAllPurchaseRequests() {
@@ -70,6 +74,8 @@ public class PrService {
             prData.setBudget(h.getAmount() == null ? 0.0 : h.getAmount());
             prData.setStatus(h.getStatus());
             prData.setDescription(h.getPrDescription());
+            BudgetDTO budgetDto=service.getBudget(h.getBudgetId());
+            prData.setBudgetName(budgetDto.getBudgetName()!=null?budgetDto.getBudgetName():"Budget service is un available");
             return ApiResponse.success(prData, "Purchase request retrieved successfully");
         } catch (Exception e) {
             logger.error("Error fetching purchase request", e);
