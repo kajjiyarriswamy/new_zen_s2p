@@ -133,6 +133,7 @@ public class BudgetController {
         d.setCreatedBy(e.getCreatedBy());
         d.setLastUpdatedTime(e.getLastUpdatedTime() == null ? null : e.getLastUpdatedTime().toString());
         d.setLastUpdatedBy(e.getLastUpdatedBy());
+        d.setBudgetName(e.getBudgetName());
         return d;
     }
    
