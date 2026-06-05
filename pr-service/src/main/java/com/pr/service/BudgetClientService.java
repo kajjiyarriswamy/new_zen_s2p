@@ -1,6 +1,10 @@
 package com.pr.service;
 
+import com.pr.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,11 +23,19 @@ public class BudgetClientService {
 	@Retry(name = "budgetService")
 	public BudgetDTO getBudget(String budgetId) {
 
-		System.out.println("Calling Budget Service");
+		System.out.println("Calling Budget Service" + budgetId);
 
 		String url = "http://localhost:8082/budget/" + budgetId;
 
-		return restTemplate.getForObject(url, BudgetDTO.class);
+		ResponseEntity<ApiResponse<BudgetDTO>> response =
+				restTemplate.exchange(
+						url,
+						HttpMethod.GET,
+						null,
+						new ParameterizedTypeReference<ApiResponse<BudgetDTO>>() {}
+				);
+
+		return response.getBody().getData();
 	}
 
 	public BudgetDTO fallbackBudget(String budgetId, Exception ex) {
