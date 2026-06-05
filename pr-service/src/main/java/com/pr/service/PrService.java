@@ -1,8 +1,10 @@
 package com.pr.service;
 
 import com.pr.dto.ApiResponse;
+import com.pr.dto.Budget1Dto;
 import com.pr.dto.BudgetDTO;
 import com.pr.dto.PrData;
+import com.pr.dto.PrData1;
 import com.pr.dto.PrLineData;
 import com.pr.entity.PrHeader;
 import com.pr.entity.PrLine;
@@ -273,4 +275,45 @@ public class PrService {
             return ApiResponse.internalError("Error applying decision to PR");
         }
     }
+
+	public ApiResponse<PrData1> getprNubudgetname(String prNumber) {
+		
+		try {
+			if(prNumber == null || prNumber.isEmpty()) {
+				return ApiResponse.badRequest("Purchase Request PR Number is required");
+			}
+			
+			
+			Optional<PrHeader>opt = prHeaderRepository.findByPrNumber(prNumber);
+			
+			if(!opt.isPresent()) {
+				
+				return ApiResponse.notFound("Purchase Request not Found");
+			}
+			
+			PrHeader h=opt.get();
+			
+			PrData1 prData1=new PrData1();
+			//prData1.setId(h.getId()==null ? null : String.valueOf(h.getId()));
+			prData1.setPrNumber(h.getPrNumber());
+			
+			Budget1Dto budget1Dto=service.getBudget1(h.getBudgetId());
+			
+			if(budget1Dto != null) {
+				prData1.setBudgetName(budget1Dto.getBudgetName());
+				prData1.setDescription(budget1Dto.getDescription());
+			}
+			
+			 return ApiResponse.success(prData1, "Purchase request retrieved successfully");
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+			logger.error("Error fetching Purches Request", e);
+			throw e;
+			
+			
+		}
+	}
+		
+	
 }
