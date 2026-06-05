@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/batch_hyd
-    username: root
-    password: 1999
+    username: appuser
+    password: App@123
 
   jpa:
     hibernate:
