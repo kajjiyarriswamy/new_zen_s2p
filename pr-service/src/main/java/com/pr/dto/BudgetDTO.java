@@ -101,7 +101,6 @@ public class BudgetDTO {
 	public void setLastUpdatedBy(String lastUpdatedBy) {
 		this.lastUpdatedBy = lastUpdatedBy;
 	}
-    
-    
+
 
 }

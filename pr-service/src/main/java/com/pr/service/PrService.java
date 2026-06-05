@@ -75,6 +75,8 @@ public class PrService {
             prData.setStatus(h.getStatus());
             prData.setDescription(h.getPrDescription());
             BudgetDTO budgetDto=service.getBudget(h.getBudgetId());
+
+            prData.setBudgetId(budgetDto.getBudgetId());
             prData.setBudgetName(budgetDto.getBudgetName()!=null?budgetDto.getBudgetName():"Budget service is un available");
             return ApiResponse.success(prData, "Purchase request retrieved successfully");
         } catch (Exception e) {
