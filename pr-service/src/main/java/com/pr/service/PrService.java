@@ -1,9 +1,6 @@
 package com.pr.service;
 
-import com.pr.dto.ApiResponse;
-import com.pr.dto.BudgetDTO;
-import com.pr.dto.PrData;
-import com.pr.dto.PrLineData;
+import com.pr.dto.*;
 import com.pr.entity.PrHeader;
 import com.pr.entity.PrLine;
 import com.pr.kafka.KafkaProducer;
@@ -27,15 +24,17 @@ public class PrService {
     private final PrHeaderRepository prHeaderRepository;
     private final PrLineRepository prLineRepository;
     private final BudgetClientService service;
+    private final PoClientService poService;
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository, BudgetClientService service) {
+                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {
     	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
         this.prLineRepository = prLineRepository;
         this.service= service;
+        this.poService = poService;
     }
 
     public ApiResponse<List<PrData>> getAllPurchaseRequests() {
@@ -75,6 +74,15 @@ public class PrService {
             prData.setStatus(h.getStatus());
             prData.setDescription(h.getPrDescription());
             BudgetDTO budgetDto=service.getBudget(h.getBudgetId());
+            PoDTO poDto= poService.getPo(h.getPrNumber());
+            prData.setBudgetId(budgetDto.getBudgetId());
+
+            logger.info(budgetDto.getBudgetName());
+            logger.info(budgetDto.getBudgetId());
+            logger.info(budgetDto.getBudgetDescription());
+            logger.info(poDto.getDescription());
+
+            prData.setPoDescription(poDto.getDescription()!=null?poDto.getDescription():"Po service is un available");
             prData.setBudgetName(budgetDto.getBudgetName()!=null?budgetDto.getBudgetName():"Budget service is un available");
             return ApiResponse.success(prData, "Purchase request retrieved successfully");
         } catch (Exception e) {
