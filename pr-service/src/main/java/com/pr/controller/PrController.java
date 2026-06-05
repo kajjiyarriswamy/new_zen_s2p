@@ -1,6 +1,7 @@
-package com.pr.controller;
+ package com.pr.controller;
 
 import com.pr.dto.ApiResponse;
+import com.pr.dto.PRDetailsResponse;
 import com.pr.dto.PrData;
 import com.pr.dto.PrData1;
 import com.pr.dto.PrLineData;
@@ -22,7 +23,18 @@ public class PrController {
     public PrController(com.pr.service.PrService prService) {
         this.prService = prService;
     }
+    //get
+    @GetMapping("/details/{prNumber}")
+    public ResponseEntity<ApiResponse<PRDetailsResponse>>
+    getPrDetails(@PathVariable String prNumber) {
 
+        ApiResponse<PRDetailsResponse> response =
+                prService.getPrDetails(prNumber);
+
+        return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
+    }
     // Get all Purchase Requests
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<PrData>>> getAllPurchaseRequests() {
