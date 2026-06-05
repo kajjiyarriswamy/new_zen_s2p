@@ -1,5 +1,23 @@
 package com.po.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.po.dto.ApiResponse;
 import com.po.dto.PoData;
 import com.po.dto.PoLineData;
@@ -8,17 +26,6 @@ import com.po.entity.PoLine;
 import com.po.kafka.KafkaProducer;
 import com.po.repository.PoHeaderRepository;
 import com.po.repository.PoLineRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/po")
@@ -44,105 +51,163 @@ public class PoController {
     // Get all Purchase Orders
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<PoData>>> getAllPurchaseOrders() {
-        logger.info("Fetching all Purchase Orders");
+    	logger.info("Fetching all Purchase Orders");
 
-        try {
-            List<PoHeader> headers = poHeaderRepository.findAll();
-            List<PoData> poList = new ArrayList<>();
-            for (PoHeader h : headers) {
-                PoData p = new PoData();
-                p.setId(h.getId() == null ? null : String.valueOf(h.getId()));
-                p.setPoNumber(h.getPoNumber());
-                p.setVendor(h.getVendorId());
-                p.setAmount(h.getAmount() == null ? 0.0 : h.getAmount());
-                p.setStatus(h.getStatus());
-                p.setDescription(h.getPoDescription());
-                poList.add(p);
-            }
+    	try {
 
-            logger.info("Successfully fetched {} purchase orders", poList.size());
-            return ResponseEntity.ok(ApiResponse.success(poList, "Purchase orders retrieved successfully"));
+    	    List<PoHeader> headers = poHeaderRepository.findAll();
+    	    List<PoData> poList = new ArrayList<>();
 
-        } catch (Exception e) {
-            logger.error("Error fetching purchase orders", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.internalError("Error fetching purchase orders"));
-        }
+    	    for (PoHeader h : headers) {
+
+    	        PoData p = new PoData();
+
+    	        p.setId(h.getId());
+    	        p.setPoNumber(h.getPoNumber());
+    	        p.setPoDescription(h.getPoDescription());
+    	        p.setRequestor(h.getRequestor());
+    	        p.setOwnerBuyer(h.getOwnerBuyer());
+    	        p.setVendorId(h.getVendorId());
+    	        p.setAmount(h.getAmount());
+    	        p.setTaxAmount(h.getTaxAmount());
+    	        p.setTotalAmount(h.getTotalAmount());
+    	        p.setApproverList(h.getApproverList());
+    	        p.setStatus(h.getStatus());
+    	        p.setCurrency(h.getCurrency());
+    	        p.setPrNumber(h.getPrNumber());
+    	        p.setOrgId(h.getOrgId());
+    	        p.setBudgetId(h.getBudgetId());
+    	        p.setPaymentTermId(h.getPaymentTermId());
+
+    	        poList.add(p);
+    	    }
+
+    	    logger.info("Successfully fetched {} purchase orders", poList.size());
+
+    	    return ResponseEntity.ok(
+    	            ApiResponse.success(poList, "Purchase orders retrieved successfully"));
+
+    	} catch (Exception e) {
+
+    	    logger.error("Error fetching purchase orders", e);
+
+    	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    	            .body(ApiResponse.internalError("Error fetching purchase orders"));
+    	}
     }
 
     // Get Purchase Order by PO number
     @GetMapping("/{poNumber}")
     public ResponseEntity<ApiResponse<PoData>> getPurchaseOrderByPoNumber(@PathVariable String poNumber) {
-        logger.info("Fetching Purchase Order with PO number: {}", poNumber);
+    	logger.info("Fetching Purchase Order with PO number: {}", poNumber);
 
-        try {
-            if (poNumber == null || poNumber.isEmpty()) {
-                logger.warn("Purchase Order PO number is empty");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(ApiResponse.badRequest("Purchase Order PO number is required"));
-            }
+    	try {
 
-            Optional<PoHeader> opt = poHeaderRepository.findByPoNumber(poNumber);
-            if (!opt.isPresent()) {
-                logger.warn("Purchase Order not found with PO number: {}", poNumber);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.notFound("Purchase Order not found"));
-            }
+    	    if (poNumber == null || poNumber.trim().isEmpty()) {
+    	        logger.warn("Purchase Order PO number is empty");
 
-            PoHeader h = opt.get();
-            PoData p = new PoData();
-            p.setId(h.getId() == null ? null : String.valueOf(h.getId()));
-            p.setPoNumber(h.getPoNumber());
-            p.setVendor(h.getVendorId());
-            p.setAmount(h.getAmount() == null ? 0.0 : h.getAmount());
-            p.setStatus(h.getStatus());
-            p.setDescription(h.getPoDescription());
+    	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    	                .body(ApiResponse.badRequest("Purchase Order PO number is required"));
+    	    }
 
-            logger.info("Successfully fetched purchase order: {}", poNumber);
-            return ResponseEntity.ok(ApiResponse.success(p, "Purchase order retrieved successfully"));
+    	    Optional<PoHeader> opt = poHeaderRepository.findByPoNumber(poNumber);
 
-        } catch (Exception e) {
-            logger.error("Error fetching purchase order", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.internalError("Error fetching purchase order"));
-        }
+    	    if (!opt.isPresent()) {
+    	        logger.warn("Purchase Order not found with PO number: {}", poNumber);
+
+    	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+    	                .body(ApiResponse.notFound("Purchase Order not found"));
+    	    }
+
+    	    PoHeader h = opt.get();
+
+    	    PoData p = new PoData();
+
+    	    p.setId(h.getId());
+    	    p.setPoNumber(h.getPoNumber());
+    	    p.setPoDescription(h.getPoDescription());
+    	    p.setRequestor(h.getRequestor());
+    	    p.setOwnerBuyer(h.getOwnerBuyer());
+    	    p.setVendorId(h.getVendorId());
+    	    p.setAmount(h.getAmount());
+    	    p.setTaxAmount(h.getTaxAmount());
+    	    p.setTotalAmount(h.getTotalAmount());
+    	    p.setApproverList(h.getApproverList());
+    	    p.setStatus(h.getStatus());
+    	    p.setCurrency(h.getCurrency());
+    	    p.setPrNumber(h.getPrNumber());
+    	    p.setOrgId(h.getOrgId());
+    	    p.setBudgetId(h.getBudgetId());
+    	    p.setPaymentTermId(h.getPaymentTermId());
+
+    	    logger.info("Successfully fetched purchase order: {}", poNumber);
+
+    	    return ResponseEntity.ok(
+    	            ApiResponse.success(p, "Purchase order retrieved successfully"));
+
+    	} catch (Exception e) {
+
+    	    logger.error("Error fetching purchase order", e);
+
+    	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    	            .body(ApiResponse.internalError("Error fetching purchase order"));
+    	}
     }
 
     // Create Purchase Order
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<PoData>> createPurchaseOrder(@RequestBody PoData poData) {
-        logger.info("Creating new Purchase Order: {}", poData.getPoNumber());
+    	logger.info("Creating new Purchase Order: {}", poData.getPoNumber());
 
-        try {
-            if (poData.getPoNumber() == null || poData.getPoNumber().isEmpty()) {
-                logger.warn("PO Number is required");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(ApiResponse.badRequest("PO Number is required"));
-            }
+    	try {
 
-            PoHeader header = new PoHeader();
-            header.setPoNumber(poData.getPoNumber());
-            header.setPoDescription(poData.getDescription());
-            header.setVendorId(poData.getVendor());
-            header.setAmount(poData.getAmount());
-            header.setStatus("PENDING");
-            header.setCreatedTime(LocalDateTime.now());
-            header = poHeaderRepository.save(header);
+    	    if (poData.getPoNumber() == null || poData.getPoNumber().trim().isEmpty()) {
+    	        logger.warn("PO Number is required");
+    	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    	                .body(ApiResponse.badRequest("PO Number is required"));
+    	    }
 
-            poData.setId(header.getId() == null ? null : String.valueOf(header.getId()));
-            poData.setStatus(header.getStatus());
+    	    PoHeader header = new PoHeader();
 
-            kafkaProducer.send("po-created", poData);
+    	    header.setPoNumber(poData.getPoNumber());
+    	    header.setPoDescription(poData.getPoDescription());
+    	    header.setRequestor(poData.getRequestor());
+    	    header.setOwnerBuyer(poData.getOwnerBuyer());
+    	    header.setVendorId(poData.getVendorId());
+    	    header.setAmount(poData.getAmount());
+    	    header.setTaxAmount(poData.getTaxAmount());
+    	    header.setTotalAmount(poData.getTotalAmount());
+    	    header.setApproverList(poData.getApproverList());
+    	    header.setCurrency(poData.getCurrency());
+    	    header.setPrNumber(poData.getPrNumber());
+    	    header.setOrgId(poData.getOrgId());
+    	    header.setBudgetId(poData.getBudgetId());
+    	    header.setPaymentTermId(poData.getPaymentTermId());
 
-            logger.info("Purchase Order created successfully with ID: {}", poData.getId());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.created(poData, "Purchase order created successfully"));
+    	    header.setStatus("PENDING");
+    	    header.setCreatedTime(LocalDateTime.now());
+    	    header.setCreatedBy("SYSTEM");
 
-        } catch (Exception e) {
-            logger.error("Error creating purchase order", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.internalError("Error creating purchase order"));
-        }
+    	    header = poHeaderRepository.save(header);
+
+    	    // Update DTO with generated values
+    	    poData.setId(header.getId());
+    	    poData.setStatus(header.getStatus());
+
+    	    kafkaProducer.send("po-created", poData);
+
+    	    logger.info("Purchase Order created successfully with ID: {}", header.getId());
+
+    	    return ResponseEntity.status(HttpStatus.CREATED)
+    	            .body(ApiResponse.created(poData, "Purchase order created successfully"));
+
+    	} catch (Exception e) {
+
+    	    logger.error("Error creating purchase order", e);
+
+    	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    	            .body(ApiResponse.internalError("Error creating purchase order"));
+    	}
     }
 
     @PostMapping("/create-from-pr/{prNumber}")
@@ -257,7 +322,7 @@ public class PoController {
             poHeaderRepository.save(header);
 
             PoData poData = new PoData();
-            poData.setId(String.valueOf(header.getId()));
+            poData.setId(header.getId());
             poData.setPoNumber(header.getPoNumber());
             poData.setStatus(header.getStatus());
 
@@ -283,5 +348,19 @@ public class PoController {
         logger.info("PO Service health");
         return ResponseEntity.ok(ApiResponse.success("PO Service is running", "Health check successful"));
     }
+    
+ @GetMapping("/by-pr/{prNumber}")
+ public ResponseEntity<ApiResponse<PoData>> getPurchaseOrderByPrNumber(
+	        @PathVariable String prNumber) {
+
+	    if (prNumber == null || prNumber.trim().isEmpty()) {
+
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(ApiResponse.badRequest("PR Number is required"));
+	    }
+
+	    return poService.getPoByPrNumber(prNumber);
+	}    
+
 }
 

@@ -35,4 +35,17 @@ public class KafkaConsumer {
         budgetService.updateBudgetAmount(event);
         logger.info("ID: {}, Budget: {}", id, budget);
     }
+    
+    
+    @KafkaListener(topics = "pr-rejected", groupId = "budget-service-group")
+    public void listenPrRejected(String message) throws Exception {
+    	PrData event =
+                objectMapper.readValue(message, PrData.class);
+
+        String id = event.getId();
+        Double budget = event.getBudget();
+        budgetService.updateBudgetAmountforPrRejected(event);
+        logger.info("ID: {}, Budget: {}", id, budget);
+    }
+
 }

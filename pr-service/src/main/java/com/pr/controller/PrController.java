@@ -1,14 +1,23 @@
 package com.pr.controller;
 
-import com.pr.dto.ApiResponse;
-import com.pr.dto.PrData;
-import com.pr.dto.PrLineData;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.pr.dto.ApiResponse;
+import com.pr.dto.PrData;
+import com.pr.dto.PrDetailsResponse;
+import com.pr.dto.PrLineData;
 
 @RestController
 @RequestMapping("/pr")
@@ -88,5 +97,25 @@ public class PrController {
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
     
+
+    // Reject Purchase Request
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<ApiResponse<PrData>> rejectPurchaseRequest(@PathVariable String id){
+    	ApiResponse<PrData> res = prService.rejectPurchaseRequest(id);
+        return  ResponseEntity.status(res.getStatusCode()).body(res);
+
+    }
+    
+    
+ // Get Purchase Request, Purchase Order and Budget Details by PR Number
+    @GetMapping("/getPoandBudgetdetails/{prNumber}")
+    public ResponseEntity<ApiResponse<PrDetailsResponse>> getPurchaseRequestDetails(
+            @PathVariable String prNumber) {
+
+        ApiResponse<PrDetailsResponse> resp =
+                prService.getPurchaseRequestDetails(prNumber);
+
+        return ResponseEntity.status(resp.getStatusCode()).body(resp);
+    }
 }
 
