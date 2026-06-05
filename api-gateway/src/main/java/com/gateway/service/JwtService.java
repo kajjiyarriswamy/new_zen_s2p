@@ -92,5 +92,6 @@ public class JwtService {
             logger.error("Token validation error: {}", e.getMessage(), e);
             return false;
         }
+        System.out.println("hello world");
     }
 }
