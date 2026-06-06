@@ -1,11 +1,15 @@
 package com.pr.service;
 
+
 import com.pr.dto.ApiResponse;
 import com.pr.dto.BudgetDTO;
 import com.pr.dto.PoDTO;
 import com.pr.dto.PrData;
 import com.pr.dto.PrDetailsResponse;
 import com.pr.dto.PrLineData;
+
+import com.pr.dto.*;
+
 import com.pr.entity.PrHeader;
 import com.pr.entity.PrLine;
 import com.pr.kafka.KafkaProducer;
@@ -279,6 +283,7 @@ public class PrService {
         }
     }
 
+
 	public ApiResponse<PrData> rejectPurchaseRequest(String id) {
         try {
         	logger.info("Reject Request ID = [{}]", id);
@@ -310,7 +315,7 @@ public class PrService {
         }
     }
 
-	public ApiResponse<PrDetailsResponse> getPurchaseRequestDetails(String prNumber) {
+	public ApiResponse<PrDetailsResponses> getPurchaseRequestDetails(String prNumber) {
 		try {
 
 		    if (prNumber == null || prNumber.trim().isEmpty()) {
@@ -325,7 +330,7 @@ public class PrService {
 
 		    PrHeader prData = opt.get();
 
-		    PrDetailsResponse prDetails = new PrDetailsResponse();
+		    PrDetailsResponses prDetails = new PrDetailsResponses();
 
 		    // PR Details
 		    prDetails.setPrNumber(prData.getPrNumber());
@@ -366,4 +371,28 @@ public class PrService {
 		            "Error fetching purchase request details");
 		}
 	}
+
+    public ApiResponse<PrDetailsResponse> getPrDetails(String prNumber) {
+
+        try {
+            List<PrHeader> headers = prHeaderRepository.findAll();
+            List<PrData> prList = new ArrayList<>();
+            for (PrHeader h : headers) {
+                PrData d = new PrData();
+                d.setId(h.getId() == null ? null : String.valueOf(h.getId()));
+                d.setPrNumber(h.getPrNumber());
+                d.setDepartment(h.getOrgId());
+                d.setRequester(h.getRequestor());
+                d.setBudget(h.getAmount() == null ? 0.0 : h.getAmount());
+                d.setStatus(h.getStatus());
+                d.setDescription(h.getPrDescription());
+                prList.add(d);
+            }
+            return ApiResponse.success((PrDetailsResponse) prList, "Purchase requests retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching purchase requests", e);
+            return ApiResponse.internalError("Error fetching purchase requests");
+        }
+    }
+
 }

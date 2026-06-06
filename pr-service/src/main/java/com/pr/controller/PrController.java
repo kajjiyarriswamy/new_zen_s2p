@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pr.dto.ApiResponse;
-import com.pr.dto.PRDetailsResponse;
+
 import com.pr.dto.PrData;
 import com.pr.dto.PrDetailsResponse;
+import com.pr.dto.PrDetailsResponses;
 import com.pr.dto.PrLineData;
 
 @RestController
@@ -33,10 +34,10 @@ public class PrController {
     }
     //get
     @GetMapping("/details/{prNumber}")
-    public ResponseEntity<ApiResponse<PRDetailsResponse>>
+    public ResponseEntity<ApiResponse<PrDetailsResponse>>
     getPrDetails(@PathVariable String prNumber) {
 
-        ApiResponse<PRDetailsResponse> response =
+        ApiResponse<PrDetailsResponse> response =
                 prService.getPrDetails(prNumber);
 
         return ResponseEntity
@@ -121,10 +122,10 @@ public class PrController {
     
  // Get Purchase Request, Purchase Order and Budget Details by PR Number
     @GetMapping("/getPoandBudgetdetails/{prNumber}")
-    public ResponseEntity<ApiResponse<PrDetailsResponse>> getPurchaseRequestDetails(
+    public ResponseEntity<ApiResponse<PrDetailsResponses>> getPurchaseRequestDetails(
             @PathVariable String prNumber) {
 
-        ApiResponse<PrDetailsResponse> resp =
+        ApiResponse<PrDetailsResponses> resp =
                 prService.getPurchaseRequestDetails(prNumber);
 
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
