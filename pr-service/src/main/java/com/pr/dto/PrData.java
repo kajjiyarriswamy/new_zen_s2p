@@ -11,6 +11,15 @@ public class PrData {
     private String description;
     private String budgetId;
     private String budgetName;
+    private String poDescription;
+
+    public String getPoDescription() {
+        return poDescription;
+    }
+
+    public void setPoDescription(String poDescription) {
+        this.poDescription = poDescription;
+    }
 
     public PrData() {
     }
