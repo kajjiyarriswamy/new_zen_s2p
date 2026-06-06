@@ -193,10 +193,49 @@ public class BudgetService {
             logger.error("Error updating budget status", e);
         }
     }
+
     
     
     private void getTestMethod() {
     	System.out.println("Test");
     	System.out.println("Test");
+    
+    }
+	public void updateBudgetAmountforPrRejected(PrData event) {
+        try {
+
+            Optional<BudgetHeaderEntity> opt =
+                    budgetHeaderRepository.findByBudgetId(event.getBudgetId());
+
+            if (opt.isEmpty()) {
+                logger.error("Budget not availab"
+                		+ "le for budgetId: {}", event.getBudgetId());
+                return;
+            }
+
+            BudgetHeaderEntity entity = opt.get();
+
+            Double amount = event.getBudget();
+
+            if (entity.getAvailableAmount() < amount) {
+                logger.error("Insufficient budget for budgetId: {}", event.getBudgetId());
+                return;
+            }
+            Double available = entity.getAvailableAmount() != null ? entity.getAvailableAmount() : 0.0;
+            Double reserved = entity.getReservedAmount() != null ? entity.getReservedAmount() : 0.0;
+            Double amountVal = amount != null ? amount : 0.0;
+
+            entity.setAvailableAmount(available + amountVal);
+            entity.setReservedAmount(reserved - amountVal);
+            entity.setLastUpdatedTime(LocalDateTime.now());
+
+            budgetHeaderRepository.save(entity);
+
+            logger.info("Budget updated successfully for budgetId: {}", event.getBudgetId());
+
+        } catch (Exception e) {
+            logger.error("Error updating budget status", e);
+        }
+
     }
 }

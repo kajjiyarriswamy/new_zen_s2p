@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaProducer {
+
     private static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -17,11 +19,16 @@ public class KafkaProducer {
     }
 
     public void send(String topic, Object payload) {
+
         try {
             String message = mapper.writeValueAsString(payload);
+
             kafkaTemplate.send(topic, message);
+
             logger.info("Sent kafka message to {}: {}", topic, message);
+
         } catch (Exception e) {
+
             logger.error("Failed to send kafka message", e);
         }
     }
