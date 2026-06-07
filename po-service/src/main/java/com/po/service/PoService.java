@@ -1,23 +1,20 @@
 package com.po.service;
 
-import java.time.LocalDateTime;
-
-import org.apache.el.stream.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import com.po.dto.ApiResponse;
 import com.po.dto.PoData;
 import com.po.entity.PoHeader;
 import com.po.kafka.KafkaProducer;
 import com.po.repository.PoHeaderRepository;
 import com.po.repository.PoLineRepository;
-
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PoService {
@@ -58,7 +55,7 @@ public class PoService {
 
             PoHeader header = new PoHeader();
             header.setPoNumber(poData.getPoNumber());
-            header.setPoDescription(poData.getPoDescription());
+            header.setPoDescription(poData.getDescription());
             header.setPrNumber(prNumber);
             header.setStatus("PENDING");
             header.setCreatedTime(LocalDateTime.now());
@@ -76,7 +73,7 @@ public class PoService {
                 logger.debug("Unable to fetch PR lines (non-fatal): {}", ex.toString());
             }
 
-            poData.setId(header.getId() == null ? null : header.getId());
+            poData.setId(header.getId() == null ? null : String.valueOf(header.getId()));
             poData.setStatus(header.getStatus());
             kafkaProducer.send("po-created", poData);
 
@@ -92,61 +89,5 @@ public class PoService {
     public ApiResponse<PoData> createPurchaseOrderFromPrFallback(String prNumber, PoData poData, Throwable t) {
         logger.warn("Service fallback: pr-service unavailable for PR {}: {}", prNumber, t == null ? "" : t.toString());
         return new ApiResponse<>(HttpStatus.SERVICE_UNAVAILABLE.value(), "PR service unavailable", null);
-    }
-
-	public ResponseEntity<ApiResponse<PoData>> getPoByPrNumber(String prNumber) {
-    	logger.info("Fetching Purchase Order with PO number: {}", prNumber);
-
-    	try {
-
-    	    if (prNumber == null || prNumber.trim().isEmpty()) {
-    	        logger.warn("Purchase Order PO number is empty");
-
-    	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    	                .body(ApiResponse.badRequest("Purchase Order PO number is required"));
-    	    }
-
-    	    java.util.Optional<PoHeader> opt = poHeaderRepository.findByPrNumber(prNumber);
-
-    	    if (!opt.isPresent()) {
-    	        logger.warn("Purchase Order not found with PR number: {}", prNumber);
-
-    	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-    	                .body(ApiResponse.notFound("Purchase Order not found"));
-    	    }
-
-    	    PoHeader h = opt.get();
-
-    	    PoData p = new PoData();
-
-    	    p.setId(h.getId());
-    	    p.setPoNumber(h.getPoNumber());
-    	    p.setPoDescription(h.getPoDescription());
-    	    p.setRequestor(h.getRequestor());
-    	    p.setOwnerBuyer(h.getOwnerBuyer());
-    	    p.setVendorId(h.getVendorId());
-    	    p.setAmount(h.getAmount());
-    	    p.setTaxAmount(h.getTaxAmount());
-    	    p.setTotalAmount(h.getTotalAmount());
-    	    p.setApproverList(h.getApproverList());
-    	    p.setStatus(h.getStatus());
-    	    p.setCurrency(h.getCurrency());
-    	    p.setPrNumber(h.getPrNumber());
-    	    p.setOrgId(h.getOrgId());
-    	    p.setBudgetId(h.getBudgetId());
-    	    p.setPaymentTermId(h.getPaymentTermId());
-
-    	    logger.info("Successfully fetched purchase order: {}", prNumber);
-
-    	    return ResponseEntity.ok(
-    	            ApiResponse.success(p, "Purchase order retrieved successfully"));
-
-    	} catch (Exception e) {
-
-    	    logger.error("Error fetching purchase order", e);
-
-    	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    	            .body(ApiResponse.internalError("Error fetching purchase order"));
-    	}
     }
 }

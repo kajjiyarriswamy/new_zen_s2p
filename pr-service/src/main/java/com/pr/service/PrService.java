@@ -1,13 +1,5 @@
 package com.pr.service;
 
-
-import com.pr.dto.ApiResponse;
-import com.pr.dto.BudgetDTO;
-import com.pr.dto.PoDTO;
-import com.pr.dto.PrData;
-import com.pr.dto.PrDetailsResponse;
-import com.pr.dto.PrLineData;
-
 import com.pr.dto.*;
 
 import com.pr.entity.PrHeader;
@@ -33,17 +25,17 @@ public class PrService {
     private final PrHeaderRepository prHeaderRepository;
     private final PrLineRepository prLineRepository;
     private final BudgetClientService service;
-    private final PoClientService poClientService;
+    private final PoClientService poService;
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository, BudgetClientService service,PoClientService poClientService) {
+                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {;
     	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
         this.prLineRepository = prLineRepository;
         this.service= service;
-		this.poClientService = poClientService;
+        this.poService = poService;
     }
 
     public ApiResponse<List<PrData>> getAllPurchaseRequests() {
@@ -83,6 +75,15 @@ public class PrService {
             prData.setStatus(h.getStatus());
             prData.setDescription(h.getPrDescription());
             BudgetDTO budgetDto=service.getBudget(h.getBudgetId());
+            PoDTO poDto= poService.getPoByPrNumber(h.getPrNumber());
+            prData.setBudgetId(budgetDto.getBudgetId());
+
+            logger.info(budgetDto.getBudgetName());
+            logger.info(budgetDto.getBudgetId());
+            logger.info(budgetDto.getBudgetDescription());
+            logger.info("PO DTO : {}", poDto);
+
+            prData.setPoDescription(poDto.getPoDescription()!=null?poDto.getPoDescription():"Po service is un available");
             prData.setBudgetName(budgetDto.getBudgetName()!=null?budgetDto.getBudgetName():"Budget service is un available");
             prData.setBudgetId(budgetDto.getBudgetId());
             return ApiResponse.success(prData, "Purchase request retrieved successfully");
@@ -349,7 +350,7 @@ public class PrService {
 		    }
 
 		    // PO Details
-		    PoDTO poData = poClientService.getPoByPrNumber(prNumber);
+		    PoDTO poData = poService.getPoByPrNumber(prNumber);
 
 		    if (poData != null) {
 		    	prDetails.setPoNumber(poData.getPoNumber());
