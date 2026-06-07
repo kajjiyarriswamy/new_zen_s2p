@@ -39,3 +39,5 @@ public class VendorContactService {
             return ApiResponse.internalError("Error creating vendor contact");
         }
     }
+    
+}
