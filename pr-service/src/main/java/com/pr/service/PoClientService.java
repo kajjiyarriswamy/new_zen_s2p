@@ -1,5 +1,4 @@
 package com.pr.service;
-
 import com.pr.dto.ApiResponse;
 import com.pr.dto.PoDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -18,27 +17,31 @@ public class PoClientService {
 
     @CircuitBreaker(name = "poService", fallbackMethod = "fallbackPo")
     @Retry(name = "poService")
-    public PoDTO getPo(String prNumber) {
+    public PoDTO getPoByPrNumber(String prNumber) {
 
-        System.out.println("Calling PO Service: " + prNumber);
-
-        String url = "http://localhost:8083/po/pr/" + prNumber;
-
+        String url = "http://localhost:8082/po/by-pr/" + prNumber;
         ResponseEntity<ApiResponse<PoDTO>> response =
                 restTemplate.exchange(
                         url,
                         HttpMethod.GET,
                         null,
-                        new ParameterizedTypeReference<ApiResponse<PoDTO>>() {}
-                );
+                        new ParameterizedTypeReference<ApiResponse<PoDTO>>() {
+                        });
 
-        return response.getBody().getData();
+            return response.getBody().getData();
     }
 
-    public PoDTO fallbackPo(String poId, Exception ex) {
+    public PoDTO fallbackPo(String prNumber, Exception ex) {
 
-        System.out.println("PO Service fallback executed: " + ex.getMessage());
+        PoDTO po = new PoDTO();
 
-        return null;
+        po.setPoNumber("N/A");
+        po.setPoNumber("Po service in unavailable");
+        po.setStatus("UNKNOWN");
+
+        return po;
     }
+
+
 }
+

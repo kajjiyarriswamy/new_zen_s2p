@@ -1,6 +1,7 @@
 package com.pr.service;
 
 import com.pr.dto.*;
+
 import com.pr.entity.PrHeader;
 import com.pr.entity.PrLine;
 import com.pr.kafka.KafkaProducer;
@@ -28,7 +29,7 @@ public class PrService {
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {
+                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {;
     	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
@@ -74,16 +75,17 @@ public class PrService {
             prData.setStatus(h.getStatus());
             prData.setDescription(h.getPrDescription());
             BudgetDTO budgetDto=service.getBudget(h.getBudgetId());
-            PoDTO poDto= poService.getPo(h.getPrNumber());
+            PoDTO poDto= poService.getPoByPrNumber(h.getPrNumber());
             prData.setBudgetId(budgetDto.getBudgetId());
 
             logger.info(budgetDto.getBudgetName());
             logger.info(budgetDto.getBudgetId());
             logger.info(budgetDto.getBudgetDescription());
-            logger.info(poDto.getDescription());
+            logger.info("PO DTO : {}", poDto);
 
-            prData.setPoDescription(poDto.getDescription()!=null?poDto.getDescription():"Po service is un available");
+            prData.setPoDescription(poDto.getPoDescription()!=null?poDto.getPoDescription():"Po service is un available");
             prData.setBudgetName(budgetDto.getBudgetName()!=null?budgetDto.getBudgetName():"Budget service is un available");
+            prData.setBudgetId(budgetDto.getBudgetId());
             return ApiResponse.success(prData, "Purchase request retrieved successfully");
         } catch (Exception e) {
             logger.error("Error fetching purchase request", e);
@@ -281,4 +283,117 @@ public class PrService {
             return ApiResponse.internalError("Error applying decision to PR");
         }
     }
+
+
+	public ApiResponse<PrData> rejectPurchaseRequest(String id) {
+        try {
+        	logger.info("Reject Request ID = [{}]", id);
+            if (id == null || id.isEmpty()) return ApiResponse.badRequest("Purchase Request ID is required");
+            Long lid;
+            try { lid = Long.valueOf(id); } catch (NumberFormatException nfe) { return ApiResponse.badRequest("Invalid Purchase Request ID"); }
+            Optional<PrHeader> opt = prHeaderRepository.findById(lid);
+            if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
+            PrHeader header = opt.get();
+            header.setStatus("REJECTED");
+            header.setLastUpdatedTime(LocalDateTime.now());
+            prHeaderRepository.save(header);
+
+            PrData prData = new PrData();
+            prData.setId(header.getId() == null ? null : String.valueOf(header.getId()));
+            prData.setPrNumber(header.getPrNumber());
+            prData.setDepartment(header.getOrgId());
+            prData.setRequester(header.getRequestor());
+            prData.setBudget(header.getAmount() == null ? 0.0 : header.getAmount());
+            prData.setStatus(header.getStatus());
+            prData.setDescription(header.getPrDescription());
+            prData.setBudgetId(header.getBudgetId()); 
+            kafkaProducer.send("pr-rejected", prData);
+            
+            return ApiResponse.success(prData, "Purchase request Rejected successfully");
+        } catch (Exception e) {
+            logger.error("Error approving purchase request", e);
+            return ApiResponse.internalError("Error approving purchase request");
+        }
+    }
+
+	public ApiResponse<PrDetailsResponses> getPurchaseRequestDetails(String prNumber) {
+		try {
+
+		    if (prNumber == null || prNumber.trim().isEmpty()) {
+		        return ApiResponse.badRequest("Purchase Request PR number is required");
+		    }
+
+		    Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
+
+		    if (!opt.isPresent()) {
+		        return ApiResponse.notFound("Purchase Request not found");
+		    }
+
+		    PrHeader prData = opt.get();
+
+		    PrDetailsResponses prDetails = new PrDetailsResponses();
+
+		    // PR Details
+		    prDetails.setPrNumber(prData.getPrNumber());
+		    prDetails.setPrDescription(prData.getPrDescription());
+		    prDetails.setRequestor(prData.getRequestor());
+		    prDetails.setPrStatus(prData.getStatus());
+
+		    // Budget Details
+		    BudgetDTO budgetDto = service.getBudget(prData.getBudgetId());
+
+		    if (budgetDto != null) {
+		    	prDetails.setBudgetId(budgetDto.getBudgetId());
+		        prDetails.setBudgetName(budgetDto.getBudgetName());
+		    } else {
+		    	prDetails.setBudgetName("Budget service unavailable");
+		    }
+
+		    // PO Details
+		    PoDTO poData = poService.getPoByPrNumber(prNumber);
+
+		    if (poData != null) {
+		    	prDetails.setPoNumber(poData.getPoNumber());
+		    	prDetails.setPoDescription(poData.getPoDescription());
+		    	prDetails.setPoStatus(poData.getStatus());
+		    } else {
+		    	prDetails.setPoDescription("PO not available");
+		    }
+
+		    return ApiResponse.success(
+		    		prDetails,
+		            "Purchase Request, Budget and PO details retrieved successfully");
+
+		} catch (Exception e) {
+
+		    logger.error("Error fetching purchase request details", e);
+
+		    return ApiResponse.internalError(
+		            "Error fetching purchase request details");
+		}
+	}
+
+    public ApiResponse<PrDetailsResponse> getPrDetails(String prNumber) {
+
+        try {
+            List<PrHeader> headers = prHeaderRepository.findAll();
+            List<PrData> prList = new ArrayList<>();
+            for (PrHeader h : headers) {
+                PrData d = new PrData();
+                d.setId(h.getId() == null ? null : String.valueOf(h.getId()));
+                d.setPrNumber(h.getPrNumber());
+                d.setDepartment(h.getOrgId());
+                d.setRequester(h.getRequestor());
+                d.setBudget(h.getAmount() == null ? 0.0 : h.getAmount());
+                d.setStatus(h.getStatus());
+                d.setDescription(h.getPrDescription());
+                prList.add(d);
+            }
+            return ApiResponse.success((PrDetailsResponse) prList, "Purchase requests retrieved successfully");
+        } catch (Exception e) {
+            logger.error("Error fetching purchase requests", e);
+            return ApiResponse.internalError("Error fetching purchase requests");
+        }
+    }
+
 }
