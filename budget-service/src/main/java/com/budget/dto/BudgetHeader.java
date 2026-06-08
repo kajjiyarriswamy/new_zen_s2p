@@ -14,6 +14,7 @@ public class BudgetHeader {
     private String createdBy;
     private String lastUpdatedTime;
     private String lastUpdatedBy;
+    private String documentPath;
 
     public BudgetHeader() {
     }
@@ -139,5 +140,13 @@ public class BudgetHeader {
 
     public void setLastUpdatedBy(String lastUpdatedBy) {
         this.lastUpdatedBy = lastUpdatedBy;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
     }
 }

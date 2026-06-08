@@ -20,3 +20,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+aws:
+  s3:
+    bucket-name: new-zen-s2p
+    region: us-east-1
+    endpoint: ""
+    access-key: ""
+    secret-key: ""
