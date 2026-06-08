@@ -14,6 +14,15 @@ public class BudgetHeader {
     private String createdBy;
     private String lastUpdatedTime;
     private String lastUpdatedBy;
+    private String budgetName;
+
+    public String getBudgetName() {
+        return budgetName;
+    }
+
+    public void setBudgetName(String budgetName) {
+        this.budgetName = budgetName;
+    }
 
     public BudgetHeader() {
     }
@@ -21,7 +30,7 @@ public class BudgetHeader {
     public BudgetHeader(String budgetId, String budgetDescription, String requestor, String orgId,
                         String approverList, String status, double availableAmount, double consumedAmount,
                         double totalAmount, String createdTime, String createdBy, String lastUpdatedTime,
-                        String lastUpdatedBy) {
+                        String lastUpdatedBy,String budgetName) {
         this.budgetId = budgetId;
         this.budgetDescription = budgetDescription;
         this.requestor = requestor;
@@ -35,6 +44,8 @@ public class BudgetHeader {
         this.createdBy = createdBy;
         this.lastUpdatedTime = lastUpdatedTime;
         this.lastUpdatedBy = lastUpdatedBy;
+        this.budgetName = budgetName;
+
     }
 
     public String getBudgetId() {
