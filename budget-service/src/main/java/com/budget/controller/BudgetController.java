@@ -9,11 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/budget")
@@ -23,10 +25,13 @@ public class BudgetController {
 
     private final KafkaProducer kafkaProducer;
     private final BudgetHeaderRepository budgetHeaderRepository;
+    private final com.budget.storage.S3StorageService s3StorageService;
 
-    public BudgetController(KafkaProducer kafkaProducer, BudgetHeaderRepository budgetHeaderRepository) {
+    public BudgetController(KafkaProducer kafkaProducer, BudgetHeaderRepository budgetHeaderRepository,
+                            com.budget.storage.S3StorageService s3StorageService) {
         this.kafkaProducer = kafkaProducer;
         this.budgetHeaderRepository = budgetHeaderRepository;
+        this.s3StorageService = s3StorageService;
     }
 
     @GetMapping("/all")
@@ -71,6 +76,36 @@ public class BudgetController {
         BudgetHeader dto = toDto(e);
         kafkaProducer.send("budget-created", dto);
         return ResponseEntity.status(201).body(ApiResponse.created(dto, "Budget created successfully"));
+    }
+
+    @PostMapping("/{budgetId}/upload-document")
+    public ResponseEntity<ApiResponse<BudgetHeader>> uploadBudgetDocument(@PathVariable String budgetId,
+                                                                          @RequestParam("file") MultipartFile file) {
+        logger.info("Uploading document for budget {}", budgetId);
+        if (budgetId == null || budgetId.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest("Budget id is required"));
+        }
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest("Document file is required"));
+        }
+
+        Optional<BudgetHeaderEntity> opt = budgetHeaderRepository.findByBudgetId(budgetId);
+        if (!opt.isPresent()) {
+            return ResponseEntity.status(404).body(ApiResponse.notFound("Budget not found"));
+        }
+
+        try {
+            String objectKey = String.format("budget/%s/%s_%s", budgetId, UUID.randomUUID(), file.getOriginalFilename());
+            String documentPath = s3StorageService.uploadFile(file, objectKey);
+            BudgetHeaderEntity entity = opt.get();
+            entity.setDocumentPath(documentPath);
+            entity.setLastUpdatedTime(LocalDateTime.now());
+            budgetHeaderRepository.save(entity);
+            return ResponseEntity.ok(ApiResponse.success(toDto(entity), "Budget document uploaded successfully"));
+        } catch (Exception e) {
+            logger.error("Failed to upload budget document", e);
+            return ResponseEntity.status(500).body(ApiResponse.internalError("Failed to upload budget document: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/{budgetId}/status")
@@ -129,6 +164,7 @@ public class BudgetController {
         d.setAvailableAmount(e.getAvailableAmount() == null ? 0.0 : e.getAvailableAmount());
         d.setConsumedAmount(e.getConsumedAmount() == null ? 0.0 : e.getConsumedAmount());
         d.setTotalAmount(e.getTotalAmount() == null ? 0.0 : e.getTotalAmount());
+        d.setDocumentPath(e.getDocumentPath());
         d.setCreatedTime(e.getCreatedTime() == null ? null : e.getCreatedTime().toString());
         d.setCreatedBy(e.getCreatedBy());
         d.setLastUpdatedTime(e.getLastUpdatedTime() == null ? null : e.getLastUpdatedTime().toString());
@@ -150,6 +186,7 @@ public class BudgetController {
         e.setConsumedAmount(0.0);
         e.setReservedAmount(0.0);
         e.setTotalAmount(d.getTotalAmount());
+        e.setDocumentPath(d.getDocumentPath());
         e.setCreatedBy(d.getCreatedBy());
         e.setLastUpdatedBy(d.getLastUpdatedBy());
         return e;

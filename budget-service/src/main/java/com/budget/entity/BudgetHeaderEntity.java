@@ -44,6 +44,9 @@ public class BudgetHeaderEntity {
     @Column(name = "total_amount")
     private Double totalAmount;
 
+    @Column(name = "document_path")
+    private String documentPath;
+
     @Column(name = "created_time")
     private LocalDateTime createdTime;
 
@@ -155,6 +158,14 @@ public class BudgetHeaderEntity {
 
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
     }
 
     public LocalDateTime getCreatedTime() {

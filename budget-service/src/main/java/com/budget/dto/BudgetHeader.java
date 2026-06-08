@@ -14,15 +14,7 @@ public class BudgetHeader {
     private String createdBy;
     private String lastUpdatedTime;
     private String lastUpdatedBy;
-    private String budgetName;
-
-    public String getBudgetName() {
-        return budgetName;
-    }
-
-    public void setBudgetName(String budgetName) {
-        this.budgetName = budgetName;
-    }
+    private String documentPath;
 
     public BudgetHeader() {
     }
@@ -150,5 +142,13 @@ public class BudgetHeader {
 
     public void setLastUpdatedBy(String lastUpdatedBy) {
         this.lastUpdatedBy = lastUpdatedBy;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
     }
 }
