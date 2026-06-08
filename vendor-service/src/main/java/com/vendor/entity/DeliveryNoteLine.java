@@ -47,4 +47,85 @@ public class DeliveryNoteLine {
 
     @Column(name = "remarks", length = 1000)
     private String remarks;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public DeliveryNoteHeader getDeliveryNoteHeader() {
+		return deliveryNoteHeader;
+	}
+
+	public void setDeliveryNoteHeader(DeliveryNoteHeader deliveryNoteHeader) {
+		this.deliveryNoteHeader = deliveryNoteHeader;
+	}
+
+	public Long getPoLineId() {
+		return poLineId;
+	}
+
+	public void setPoLineId(Long poLineId) {
+		this.poLineId = poLineId;
+	}
+
+	public String getItemCode() {
+		return itemCode;
+	}
+
+	public void setItemCode(String itemCode) {
+		this.itemCode = itemCode;
+	}
+
+	public String getItemName() {
+		return itemName;
+	}
+
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
+	}
+
+	public String getUom() {
+		return uom;
+	}
+
+	public void setUom(String uom) {
+		this.uom = uom;
+	}
+
+	public BigDecimal getOrderedQuantity() {
+		return orderedQuantity;
+	}
+
+	public void setOrderedQuantity(BigDecimal orderedQuantity) {
+		this.orderedQuantity = orderedQuantity;
+	}
+
+	public BigDecimal getDeliveredQuantity() {
+		return deliveredQuantity;
+	}
+
+	public void setDeliveredQuantity(BigDecimal deliveredQuantity) {
+		this.deliveredQuantity = deliveredQuantity;
+	}
+
+	public BigDecimal getRemainingQuantity() {
+		return remainingQuantity;
+	}
+
+	public void setRemainingQuantity(BigDecimal remainingQuantity) {
+		this.remainingQuantity = remainingQuantity;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+    
 }

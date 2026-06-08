@@ -18,6 +18,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "delivery_note_header")
+
 public class DeliveryNoteHeader {
 
     @Id
@@ -68,4 +69,133 @@ public class DeliveryNoteHeader {
 
     @OneToMany(mappedBy = "deliveryNoteHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DeliveryNoteLine> deliveryNoteLines = new ArrayList<>();
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getDeliveryNoteNumber() {
+		return deliveryNoteNumber;
+	}
+
+	public void setDeliveryNoteNumber(String deliveryNoteNumber) {
+		this.deliveryNoteNumber = deliveryNoteNumber;
+	}
+
+	public LocalDate getDeliveryNoteDate() {
+		return deliveryNoteDate;
+	}
+
+	public void setDeliveryNoteDate(LocalDate deliveryNoteDate) {
+		this.deliveryNoteDate = deliveryNoteDate;
+	}
+
+	public Long getVendorId() {
+		return vendorId;
+	}
+
+	public void setVendorId(Long vendorId) {
+		this.vendorId = vendorId;
+	}
+
+	public String getVendorCode() {
+		return vendorCode;
+	}
+
+	public void setVendorCode(String vendorCode) {
+		this.vendorCode = vendorCode;
+	}
+
+	public String getVendorName() {
+		return vendorName;
+	}
+
+	public void setVendorName(String vendorName) {
+		this.vendorName = vendorName;
+	}
+
+	public Long getPoId() {
+		return poId;
+	}
+
+	public void setPoId(Long poId) {
+		this.poId = poId;
+	}
+
+	public String getPoNumber() {
+		return poNumber;
+	}
+
+	public void setPoNumber(String poNumber) {
+		this.poNumber = poNumber;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public BigDecimal getTotalQuantity() {
+		return totalQuantity;
+	}
+
+	public void setTotalQuantity(BigDecimal totalQuantity) {
+		this.totalQuantity = totalQuantity;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public LocalDateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(LocalDateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+
+	public LocalDateTime getModifiedDate() {
+		return modifiedDate;
+	}
+
+	public void setModifiedDate(LocalDateTime modifiedDate) {
+		this.modifiedDate = modifiedDate;
+	}
+
+	public List<DeliveryNoteLine> getDeliveryNoteLines() {
+		return deliveryNoteLines;
+	}
+
+	public void setDeliveryNoteLines(List<DeliveryNoteLine> deliveryNoteLines) {
+		this.deliveryNoteLines = deliveryNoteLines;
+	}
+    
 }
