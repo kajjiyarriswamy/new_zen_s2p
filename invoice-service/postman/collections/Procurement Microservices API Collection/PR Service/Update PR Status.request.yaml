@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{prUrl}}/pr/{{prId}}/status?status=APPROVED"
+method: PUT
+queryParams:
+  status: APPROVED
+order: 6000

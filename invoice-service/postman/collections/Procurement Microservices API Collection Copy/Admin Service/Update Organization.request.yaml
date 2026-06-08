@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/orgs/{{orgId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "orgName": "Updated Org",
+      "orgCode": "UPDATED",
+      "lastUpdatedBy": "admin"
+    }
+order: 4000

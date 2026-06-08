@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/orgs/all"
+method: GET
+order: 1000

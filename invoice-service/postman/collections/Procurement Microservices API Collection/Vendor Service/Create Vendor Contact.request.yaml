@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{vendorUrl}}/vendor/contacts/vendor/{{venId}}/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Ravi Kumar",
+      "designation": "Sales Manager",
+      "phone": "+1234567890",
+      "emailId": "ravi@example.com",
+      "createdBy": "admin"
+    }
+order: 6000

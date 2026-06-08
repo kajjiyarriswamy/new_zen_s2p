@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{userUrl}}/user/{{userId}}/status?status=ACTIVE"
+method: PUT
+queryParams:
+  status: ACTIVE
+order: 4000

@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{vendorUrl}}/vendor/banks/vendor/{{venId}}/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "bankName": "HDFC Bank",
+      "ifscCode": "HDFC0001234",
+      "accountNumber": "123456789012",
+      "branch": "Mumbai",
+      "documentPath": "/files/bank-proof.pdf",
+      "accountHolderName": "Supplier A Pvt Ltd",
+      "createdBy": "admin"
+    }
+order: 8000

@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{poUrl}}/po/{{poId}}/status?status=APPROVED"
+method: PUT
+queryParams:
+  status: APPROVED
+order: 7000

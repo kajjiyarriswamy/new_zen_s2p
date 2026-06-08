@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{userUrl}}/user/mapping/vendor/{{userId}}"
+method: GET
+order: 7000

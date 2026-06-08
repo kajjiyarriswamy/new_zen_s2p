@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{budgetUrl}}/budget/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "budgetId": "BUD_001",
+      "budgetDescription": "Marketing budget Q2",
+      "requestor": "jdoe",
+      "orgId": "ORG_001",
+      "approverList": "approver1,approver2",
+      "availableAmount": 50000.0,
+      "consumedAmount": 10000.0,
+      "totalAmount": 60000.0,
+      "createdBy": "admin"
+    }
+order: 3000

@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{vendorUrl}}/vendor/signup"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "companyName": "Supplier A Pvt Ltd",
+      "emailId": "supplierA@example.com",
+      "password": "secretpass",
+      "address": "123 Vendor St",
+      "pan": "PAN001",
+      "tan": "TAN001",
+      "companyRegistrationDate": "2025-01-01",
+      "userRegistered": "supplier_admin",
+      "logoPath": "/files/logo.png",
+      "createdBy": "admin"
+    }
+order: 3000

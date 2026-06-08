@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{prUrl}}/pr/health"
+method: GET
+order: 9000

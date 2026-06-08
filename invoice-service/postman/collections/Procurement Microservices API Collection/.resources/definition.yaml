@@ -1,0 +1,20 @@
+$kind: collection
+description: Collection covering API endpoints for API Gateway, Admin, Budget, Vendor, User, PR, and PO services.
+variables:
+  gatewayUrl: http://localhost:8080
+  adminUrl: http://localhost:8081
+  budgetUrl: http://localhost:8082
+  vendorUrl: http://localhost:8083
+  userUrl: http://localhost:8084
+  prUrl: http://localhost:8085
+  poUrl: http://localhost:8086
+  orgId: ORG_001
+  roleId: ROLE_1
+  paymentTermId: TERM_30
+  budgetId: BUD_001
+  vendorId: VEND_001
+  venId: VEND_001
+  userId: USER_001
+  prNumber: PR_001
+  poNumber: PO_001
+  poId: "1"

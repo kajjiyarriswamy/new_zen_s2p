@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/payment-terms/{{paymentTermId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "paymentTerm": "TERM_60",
+      "paymentDescription": "Payment due after sixty days"
+    }
+order: 12000
