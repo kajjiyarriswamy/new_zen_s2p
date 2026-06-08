@@ -16,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "invoice_line")
@@ -66,4 +67,16 @@ public class InvoiceLine {
 
     @Column(name = "remarks", length = 1000)
     private String remarks;
+    
+    @Column(name = "created_by", length = 100)
+    private String createdBy;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    @Column(name = "modified_by", length = 100)
+    private String modifiedBy;
+
+    @Column(name = "modified_date")
+    private LocalDateTime modifiedDate;
 }
