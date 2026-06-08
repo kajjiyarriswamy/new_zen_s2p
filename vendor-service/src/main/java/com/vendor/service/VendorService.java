@@ -1,12 +1,20 @@
 package com.vendor.service;
 
 import com.vendor.dto.ApiResponse;
+import com.vendor.dto.ReceiptDTO;
 import com.vendor.dto.VendorDetails;
+import com.vendor.entity.ReceiptHeader;
+import com.vendor.entity.ReceiptLine;
 import com.vendor.kafka.KafkaProducer;
+import com.vendor.repository.ReceiptLineRepo;
+import com.vendor.repository.ReciptHeaderRepo;
+import org.apache.coyote.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,9 +24,13 @@ public class VendorService {
     private static final Logger logger = LoggerFactory.getLogger(VendorService.class);
 
     private final KafkaProducer kafkaProducer;
+    private final ReceiptLineRepo receiptLineRepo;
+    private final ReciptHeaderRepo reciptHeaderRepo;
 
-    public VendorService(KafkaProducer kafkaProducer) {
+    public VendorService(KafkaProducer kafkaProducer, ReceiptLineRepo receiptLineRepo, ReciptHeaderRepo reciptHeaderRepo) {
+        this.receiptLineRepo = receiptLineRepo;
         this.kafkaProducer = kafkaProducer;
+        this.reciptHeaderRepo = reciptHeaderRepo;
     }
 
     public ApiResponse<List<VendorDetails>> getAllVendors() {
@@ -76,6 +88,70 @@ public class VendorService {
             return ApiResponse.internalError("Error updating vendor");
         }
     }
-    
-  
+
+
+    public ApiResponse<ReceiptDTO> createRequestbyDelivery(ReceiptHeader header) {
+
+        try {
+            // Validate input
+            if (header == null) {
+                return ApiResponse.badRequest("Request is required");
+            }
+
+            if (header.getDeliveryNoteId() == null) {
+                return ApiResponse.badRequest("Delivery note ID is required");
+            }
+
+            // Create receipt header
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+            receiptHeader.setReceiptNumber("REC-" + System.currentTimeMillis());
+            receiptHeader.setReceiptDate(LocalDate.now());
+            receiptHeader.setDeliveryNoteId(header.getDeliveryNoteId());
+            receiptHeader.setStatus("CREATED");
+            receiptHeader.setCreatedBy("system");
+            receiptHeader.setCreatedDate(LocalDateTime.now());
+
+            // Store warehouse info in remarks or add new fields to ReceiptHeader entity
+            String warehouseInfo = String.format("Warehouse: %s - %s",
+                    header.getWarehouseCode(),
+                    header.getWarehouseName());
+            receiptHeader.setRemarks(warehouseInfo);
+
+            // Save receipt header
+            ReceiptHeader savedReceiptHeader = reciptHeaderRepo.save(receiptHeader);
+            logger.info("Receipt header saved with ID: {}", savedReceiptHeader.getId());
+
+            // Create and save receipt lines
+            List<ReceiptLine> savedLines = new ArrayList<>();
+            for (ReceiptLine lineRequest : header.getReceiptLines()) {
+                ReceiptLine receiptLine = new ReceiptLine();
+                receiptLine.setReceiptHeader(savedReceiptHeader);
+                receiptLine.setDeliveryNoteLineId(lineRequest.getDeliveryNoteLineId());
+                receiptLine.setReceivedQuantity(lineRequest.getReceivedQuantity());
+                receiptLine.setAcceptedQuantity(lineRequest.getAcceptedQuantity());
+                receiptLine.setRejectedQuantity(lineRequest.getRejectedQuantity());
+                receiptLine.setRejectionReason(lineRequest.getRejectionReason());
+                receiptLine.setStatus("PROCESSED");
+
+                ReceiptLine savedLine = receiptLineRepo.save(receiptLine);
+                savedLines.add(savedLine);
+            }
+
+            logger.info("Saved {} receipt lines", savedLines.size());
+
+            // response DTO
+            ReceiptDTO receiptDTO = new ReceiptDTO(
+                    savedReceiptHeader.getId(),
+                    savedReceiptHeader.getReceiptNumber(),
+                    savedReceiptHeader.getStatus()
+            );
+
+            return ApiResponse.created(receiptDTO, "Receipt created successfully");
+
+        } catch (Exception e) {
+            logger.error("Error creating receipt request", e);
+            return ApiResponse.internalError("Error creating receipt request: " + e.getMessage());
+        }
+    }
+
 }

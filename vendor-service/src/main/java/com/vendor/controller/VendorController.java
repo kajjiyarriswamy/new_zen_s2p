@@ -1,7 +1,9 @@
 package com.vendor.controller;
 
 import com.vendor.dto.ApiResponse;
+import com.vendor.dto.ReceiptDTO;
 import com.vendor.dto.VendorDetails;
+import com.vendor.entity.ReceiptHeader;
 import com.vendor.service.VendorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,4 +44,11 @@ public class VendorController {
         ApiResponse<VendorDetails> resp = vendorService.updateVendor(id, vendorDetails);
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
+    @PostMapping("/api/receipts")
+    public ResponseEntity<ApiResponse<ReceiptDTO>> createRequestbyDeliverynote(@RequestBody ReceiptHeader header){
+        ApiResponse<ReceiptDTO>  creq = vendorService.createRequestbyDelivery(header);
+        return ResponseEntity.status(creq.getStatusCode()).body(creq);
+
+    }
+
 }
