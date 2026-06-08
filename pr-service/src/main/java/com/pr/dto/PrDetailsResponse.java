@@ -1,6 +1,6 @@
 package com.pr.dto;
 
-public class PRDetailsResponse {
+public class PrDetailsResponse {
 	 private String prDescription;
 	    private String budgetId;
 	    private String budgetName;
