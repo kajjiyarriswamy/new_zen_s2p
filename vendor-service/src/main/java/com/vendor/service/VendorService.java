@@ -90,28 +90,25 @@ public class VendorService {
     }
 
 
-    public ApiResponse<ReceiptDTO> createRequestbyDelivery(ReceiptHeader header) {
+    public ApiResponse<ReceiptDTO> createReceiptbyDelivery(ReceiptHeader header) {
 
         try {
             // Validate input
-            if (header == null) {
-                return ApiResponse.badRequest("Request is required");
-            }
-
-            if (header.getDeliveryNoteId() == null) {
+            if (header == null || header.getDeliveryNoteId() == null) {
                 return ApiResponse.badRequest("Delivery note ID is required");
             }
 
+
             // Create receipt header
             ReceiptHeader receiptHeader = new ReceiptHeader();
-            receiptHeader.setReceiptNumber("REC-" + System.currentTimeMillis());
+            receiptHeader.setReceiptNumber("REC-" + LocalDateTime.now().getYear()+ "-" +(System.currentTimeMillis()%10000));
             receiptHeader.setReceiptDate(LocalDate.now());
             receiptHeader.setDeliveryNoteId(header.getDeliveryNoteId());
             receiptHeader.setStatus("CREATED");
             receiptHeader.setCreatedBy("system");
             receiptHeader.setCreatedDate(LocalDateTime.now());
 
-            // Store warehouse info in remarks or add new fields to ReceiptHeader entity
+            // Store warehouse
             String warehouseInfo = String.format("Warehouse: %s - %s",
                     header.getWarehouseCode(),
                     header.getWarehouseName());
@@ -121,7 +118,7 @@ public class VendorService {
             ReceiptHeader savedReceiptHeader = reciptHeaderRepo.save(receiptHeader);
             logger.info("Receipt header saved with ID: {}", savedReceiptHeader.getId());
 
-            // Create and save receipt lines
+            //  receipt lines
             List<ReceiptLine> savedLines = new ArrayList<>();
             for (ReceiptLine lineRequest : header.getReceiptLines()) {
                 ReceiptLine receiptLine = new ReceiptLine();
@@ -136,8 +133,6 @@ public class VendorService {
                 ReceiptLine savedLine = receiptLineRepo.save(receiptLine);
                 savedLines.add(savedLine);
             }
-
-            logger.info("Saved {} receipt lines", savedLines.size());
 
             // response DTO
             ReceiptDTO receiptDTO = new ReceiptDTO(

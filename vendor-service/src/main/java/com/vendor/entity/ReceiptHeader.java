@@ -25,19 +25,19 @@ public class ReceiptHeader {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "receipt_number", length = 100)
+    @Column(name = "receipt_number", nullable = false, length = 100)
     private String receiptNumber;
 
-    @Column(name = "receipt_date")
+    @Column(name = "receipt_date", nullable = false)
     private LocalDate receiptDate;
 
-    @Column(name = "delivery_note_id")
+    @Column(name = "delivery_note_id", nullable = false)
     private Long deliveryNoteId;
 
-    @Column(name = "vendor_id")
+    @Column(name = "vendor_id", nullable = false)
     private Long vendorId;
 
-    @Column(name = "po_id")
+    @Column(name = "po_id", nullable = false)
     private Long poId;
 
     @Column(name = "status", length = 50)
@@ -52,14 +52,14 @@ public class ReceiptHeader {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
+    @OneToMany(mappedBy = "receiptHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ReceiptLine> receiptLines = new ArrayList<>();
+
     @Column(name = "warehouse_code")
     private String warehouseCode;
 
     @Column(name = "warehouse_name")
     private String warehouseName;
-
-    @OneToMany(mappedBy = "receiptHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ReceiptLine> receiptLines = new ArrayList<>();
 
     public String getWarehouseCode() {
         return warehouseCode;

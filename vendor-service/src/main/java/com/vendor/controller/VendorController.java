@@ -45,8 +45,8 @@ public class VendorController {
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
     @PostMapping("/api/receipts")
-    public ResponseEntity<ApiResponse<ReceiptDTO>> createRequestbyDeliverynote(@RequestBody ReceiptHeader header){
-        ApiResponse<ReceiptDTO>  creq = vendorService.createRequestbyDelivery(header);
+    public ResponseEntity<ApiResponse<ReceiptDTO>> createReceiptbyDeliverynote(@RequestBody ReceiptHeader header){
+        ApiResponse<ReceiptDTO>  creq = vendorService.createReceiptbyDelivery(header);
         return ResponseEntity.status(creq.getStatusCode()).body(creq);
 
     }

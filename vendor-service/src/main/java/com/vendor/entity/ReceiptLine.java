@@ -22,13 +22,13 @@ public class ReceiptLine {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receipt_header_id")
+    @JoinColumn(name = "receipt_header_id", nullable = false)
     private ReceiptHeader receiptHeader;
 
-    @Column(name = "delivery_note_line_id")
+    @Column(name = "delivery_note_line_id", nullable = false)
     private Long deliveryNoteLineId;
 
-    @Column(name = "po_line_id")
+    @Column(name = "po_line_id", nullable = false)
     private Long poLineId;
 
     @Column(name = "item_code", length = 100)
