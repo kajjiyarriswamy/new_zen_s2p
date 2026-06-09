@@ -78,3 +78,4 @@ public class UserMappingService {
             return ApiResponse.internalError("Error creating vendor mapping");
         }
     }
+}

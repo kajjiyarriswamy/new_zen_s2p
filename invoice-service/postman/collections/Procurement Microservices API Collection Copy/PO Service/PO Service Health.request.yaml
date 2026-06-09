@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{poUrl}}/po/health"
+method: GET
+order: 8000

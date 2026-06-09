@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{budgetUrl}}/budget/{{budgetId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "budgetDescription": "Revised marketing budget",
+      "requestor": "jdoe",
+      "orgId": "ORG_001",
+      "approverList": "approver1,approver2",
+      "availableAmount": 45000.0,
+      "consumedAmount": 15000.0,
+      "totalAmount": 60000.0,
+      "lastUpdatedBy": "admin"
+    }
+order: 5000

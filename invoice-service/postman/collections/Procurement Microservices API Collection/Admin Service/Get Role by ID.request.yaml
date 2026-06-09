@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/roles/{{roleId}}"
+method: GET
+order: 6000

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{prUrl}}/pr/{{prId}}/approve"
+method: POST
+order: 7000

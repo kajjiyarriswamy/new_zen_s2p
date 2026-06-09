@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{vendorUrl}}/vendor/contacts/vendor/{{venId}}"
+method: GET
+order: 5000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{gatewayUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "admin",
+      "password": "password"
+    }
+order: 1000

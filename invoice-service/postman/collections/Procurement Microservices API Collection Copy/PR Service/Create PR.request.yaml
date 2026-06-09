@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{prUrl}}/pr/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "prNumber": "PR_001",
+      "department": "Procurement",
+      "requester": "jdoe",
+      "budget": 30000.0,
+      "status": "SUBMITTED",
+      "description": "Purchase request for new laptops"
+    }
+order: 3000

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{poUrl}}/po/{{poNumber}}/lines"
+method: GET
+order: 5000

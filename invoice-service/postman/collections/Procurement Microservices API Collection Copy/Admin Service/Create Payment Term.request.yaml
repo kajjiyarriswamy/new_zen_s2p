@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/payment-terms/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "paymentTerm": "TERM_30",
+      "paymentDescription": "Payment due after thirty days"
+    }
+order: 11000

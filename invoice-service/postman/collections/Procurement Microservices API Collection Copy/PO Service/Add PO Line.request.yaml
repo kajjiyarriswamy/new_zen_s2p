@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{poUrl}}/po/{{poNumber}}/lines"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "poLineId": "POL_001",
+      "item": "Laptop",
+      "uom": "EA",
+      "qty": 10,
+      "unitCost": 1500.0,
+      "taxPercentage": 18.0,
+      "totalCost": 17700.0,
+      "category": "Hardware",
+      "receivedQty": 0,
+      "createdBy": "admin"
+    }
+order: 6000

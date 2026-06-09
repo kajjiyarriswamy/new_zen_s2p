@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{poUrl}}/po/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "poNumber": "PO_001",
+      "vendor": "VEND_001",
+      "amount": 17700.0,
+      "description": "Purchase order for laptops"
+    }
+order: 3000
