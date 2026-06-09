@@ -23,6 +23,8 @@ public class CreateInvoiceRequestDTO {
 
     private String createdBy;
 
+    private String documentPath;
+
     private List<CreateInvoiceLineRequestDTO> lines;
 
 	public Long getReceiptHeaderId() {
@@ -96,6 +98,12 @@ public class CreateInvoiceRequestDTO {
 	public void setLines(List<CreateInvoiceLineRequestDTO> lines) {
 		this.lines = lines;
 	}
-    
-    
+
+	public String getDocumentPath() {
+		return documentPath;
+	}
+
+	public void setDocumentPath(String documentPath) {
+		this.documentPath = documentPath;
+	}
 }

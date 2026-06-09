@@ -7,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -23,13 +24,15 @@ import java.util.List;
 
 @Entity
 @Table(name = "invoice_header")
-public class InvoiceHeader {
+public class InvoiceHeader implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "invoice_number", nullable = false, length = 100)
+    @Column(name = "invoice_number", nullable = false, unique = true, length = 100)
     private String invoiceNumber;
 
     @Column(name = "invoice_date", nullable = false)
@@ -83,7 +86,11 @@ public class InvoiceHeader {
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
 
-    @OneToMany(mappedBy = "invoiceHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Column(name = "document_path", length = 500)
+    private String documentPath;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice_number", referencedColumnName = "invoice_number")
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
 
 	public Long getId() {
@@ -245,7 +252,12 @@ public class InvoiceHeader {
 	public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
 		this.invoiceLines = invoiceLines;
 	}
-    
-    
-    
+
+	public String getDocumentPath() {
+		return documentPath;
+	}
+
+	public void setDocumentPath(String documentPath) {
+		this.documentPath = documentPath;
+	}
 }
