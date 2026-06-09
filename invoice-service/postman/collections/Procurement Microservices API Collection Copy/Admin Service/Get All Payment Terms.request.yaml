@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/payment-terms/all"
+method: GET
+order: 9000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{poUrl}}/po/create-from-pr/{{prNumber}}"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "poNumber": "PO_002",
+      "vendor": "VEND_001",
+      "amount": 17700.0,
+      "description": "PO created from approved PR"
+    }
+order: 4000

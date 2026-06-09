@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{userUrl}}/user/mapping/org/{{userId}}"
+method: GET
+order: 5000

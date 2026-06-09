@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{prUrl}}/pr/{{prNumber}}/lines"
+method: GET
+order: 4000

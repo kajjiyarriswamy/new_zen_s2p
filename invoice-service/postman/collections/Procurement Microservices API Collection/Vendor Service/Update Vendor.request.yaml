@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{vendorUrl}}/vendor/{{vendorId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "companyName": "Supplier A Pvt Ltd",
+      "emailId": "supplierA@example.com",
+      "password": "newpass",
+      "address": "456 Vendor Ave",
+      "pan": "PAN001",
+      "tan": "TAN001",
+      "companyRegistrationDate": "2025-01-01",
+      "userRegistered": "supplier_admin",
+      "logoPath": "/files/logo.png",
+      "lastUpdatedBy": "admin"
+    }
+order: 4000

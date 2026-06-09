@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/roles/{{roleId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roleName": "Finance_Manager",
+      "roleDescription": "Finance approval role"
+    }
+order: 8000

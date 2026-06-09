@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/roles/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roleName": "Department_user",
+      "roleDescription": "Can submit PRs and view budgets"
+    }
+order: 7000

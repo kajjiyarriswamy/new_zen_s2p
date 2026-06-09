@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{userUrl}}/user/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "John Doe",
+      "userName": "jdoe",
+      "designation": "Procurement_officer",
+      "emailId": "jdoe@example.com",
+      "phone": "+1234567890",
+      "address": "123 Main St",
+      "userStatus": "ACTIVE",
+      "userType": "INTERNAL",
+      "createdBy": "admin"
+    }
+order: 3000

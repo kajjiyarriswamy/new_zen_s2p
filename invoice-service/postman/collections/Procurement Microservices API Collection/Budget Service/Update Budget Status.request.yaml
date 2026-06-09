@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{budgetUrl}}/budget/{{budgetId}}/status?status=APPROVED"
+method: PUT
+queryParams:
+  status: APPROVED
+order: 4000

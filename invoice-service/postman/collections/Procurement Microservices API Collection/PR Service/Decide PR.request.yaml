@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{prUrl}}/pr/{{prNumber}}/decision?action=approve&approver=admin"
+method: POST
+queryParams:
+  action: approve
+  approver: admin
+order: 8000

@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{adminUrl}}/admin/orgs/create"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "orgName": "Acme Corporation",
+      "orgCode": "ACME",
+      "createdBy": "admin"
+    }
+order: 3000

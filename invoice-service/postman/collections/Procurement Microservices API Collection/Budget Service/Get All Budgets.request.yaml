@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{budgetUrl}}/budget/all"
+method: GET
+order: 1000
