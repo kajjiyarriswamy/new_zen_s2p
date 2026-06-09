@@ -11,12 +11,19 @@ import com.vendor.repository.ReciptHeaderRepo;
 import org.apache.coyote.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class VendorService {
@@ -26,11 +33,13 @@ public class VendorService {
     private final KafkaProducer kafkaProducer;
     private final ReceiptLineRepo receiptLineRepo;
     private final ReciptHeaderRepo reciptHeaderRepo;
+    private final S3BucketService s3BucketService;
 
-    public VendorService(KafkaProducer kafkaProducer, ReceiptLineRepo receiptLineRepo, ReciptHeaderRepo reciptHeaderRepo) {
-        this.receiptLineRepo = receiptLineRepo;
+    public VendorService(KafkaProducer kafkaProducer, ReceiptLineRepo receiptLineRepo, ReciptHeaderRepo reciptHeaderRepo, S3BucketService s3BucketService) {
         this.kafkaProducer = kafkaProducer;
+        this.receiptLineRepo = receiptLineRepo;
         this.reciptHeaderRepo = reciptHeaderRepo;
+        this.s3BucketService = s3BucketService;
     }
 
     public ApiResponse<List<VendorDetails>> getAllVendors() {
@@ -149,4 +158,36 @@ public class VendorService {
         }
     }
 
+
+    public ApiResponse<ReceiptHeader> createReceiptbyDelivery(String receiptNumber, MultipartFile file) {
+
+        logger.info("Uploading document for budget {}", receiptNumber);
+        if (receiptNumber == null || receiptNumber.isEmpty()) {
+            return ApiResponse.badRequest("ReceiptNumber is required");
+        }
+        if (file == null || file.isEmpty()) {
+            return ApiResponse.badRequest("Document file is required");
+        }
+
+        Optional<ReceiptHeader> opt = reciptHeaderRepo.findByReceiptNumber(receiptNumber);
+        if (!opt.isPresent()) {
+            return ApiResponse.notFound("Receipt Number not found");
+        }
+
+        try {
+            String objectKey = String.format("%s/%s_%s", receiptNumber , UUID.randomUUID(), file.getOriginalFilename());
+            String documentPath = s3BucketService.uploadFile(file, objectKey);
+            ReceiptHeader receiptHeader = opt.get();
+            receiptHeader.setDocumentPath(documentPath);
+            receiptHeader.setLastUpdatedTime(LocalDateTime.now());
+            receiptHeader.setDeliveryNoteId(receiptHeader.getDeliveryNoteId());
+            receiptHeader.setVendorId(receiptHeader.getVendorId());
+            receiptHeader.setPoId(receiptHeader.getPoId());
+            reciptHeaderRepo.save(receiptHeader);
+            return ApiResponse.success(receiptHeader, "Receipt document uploaded");
+        } catch (Exception e) {
+            logger.error("Failed to upload Receipt document", e);
+            return ApiResponse.internalError("Failed to upload receipt document: " + e.getMessage());
+        }
+    }
 }

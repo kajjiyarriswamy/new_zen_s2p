@@ -7,8 +7,10 @@ import com.vendor.entity.ReceiptHeader;
 import com.vendor.service.VendorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/vendor")
@@ -51,4 +53,10 @@ public class VendorController {
 
     }
 
+    @PostMapping("/{receiptNumber}/upload-document")
+    public ResponseEntity<ApiResponse<ReceiptHeader>> uploadBudgetDocument(@PathVariable String receiptNumber, @RequestParam("file") MultipartFile file) {
+        ApiResponse<ReceiptHeader>  req = vendorService.createReceiptbyDelivery(receiptNumber,file);
+        return ResponseEntity.status(req.getStatusCode()).body(req);
+
+    }
 }
