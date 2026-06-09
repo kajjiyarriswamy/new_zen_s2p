@@ -15,6 +15,7 @@ public class CreateInvoiceResponseDTO {
     private LocalDate invoiceDate;
     private BigDecimal invoiceAmount;
     private BigDecimal taxAmount;
+    private String documentPath;
 
     public CreateInvoiceResponseDTO() {
     }
@@ -82,5 +83,12 @@ public class CreateInvoiceResponseDTO {
 	public void setTaxAmount(BigDecimal taxAmount) {
 		this.taxAmount = taxAmount;
 	}
-    
+
+	public String getDocumentPath() {
+		return documentPath;
+	}
+
+	public void setDocumentPath(String documentPath) {
+		this.documentPath = documentPath;
+	}
 }

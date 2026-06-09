@@ -47,6 +47,7 @@ public class InvoiceService {
         header.setCurrencyCode(requestDTO.getCurrencyCode());
         header.setPaymentTerms(requestDTO.getPaymentTerms());
         header.setRemarks(requestDTO.getRemarks());
+        header.setDocumentPath(requestDTO.getDocumentPath());
         header.setStatus("SUBMITTED");
         header.setCreatedBy(requestDTO.getCreatedBy());
         header.setCreatedDate(LocalDateTime.now());
@@ -55,7 +56,7 @@ public class InvoiceService {
 
             InvoiceLine line = new InvoiceLine();
 
-            line.setInvoiceHeader(header);
+            line.setInvoiceHeader(header.getInvoiceNumber());
             line.setReceiptLineId(dto.getReceiptLineId());
             line.setPoLineId(dto.getPoLineId());
             line.setItemCode(dto.getItemCode());
@@ -108,6 +109,7 @@ public class InvoiceService {
         response.setInvoiceAmount(saved.getInvoiceAmount());
         response.setTaxAmount(saved.getTaxAmount());
         response.setTotalAmount(saved.getTotalAmount());
+        response.setDocumentPath(saved.getDocumentPath());
 
         return response;
     }
