@@ -9,7 +9,7 @@ import com.pr.dto.BudgetDTO;
 @FeignClient(name = "budget-service", url = "http://localhost:8082")
 public interface BudgetFeignClient {
 
-	@GetMapping("/budgets/{budgetId}")
+	@GetMapping("/budget/{budgetId}")
 	BudgetDTO getBudget(@PathVariable String budgetId);
 	
 }

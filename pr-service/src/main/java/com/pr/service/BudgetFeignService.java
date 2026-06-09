@@ -12,21 +12,21 @@ import io.github.resilience4j.retry.annotation.Retry;
 @Service
 public class BudgetFeignService {
 
-//	@Autowired
-//	private BudgetFeignClient feignClient;
-//
-//	@CircuitBreaker(name = "budgetService", fallbackMethod = "fallbackBudget")
-//	@Retry(name = "budgetService")
-//	public BudgetDTO getBudget(String budgetId) {
-//
-//		return feignClient.getBudget(budgetId);
-//	}
-//
-//	public BudgetDTO fallbackBudget(Long budgetId, Exception ex) {
-//
-//		System.out.println("Fallback executed");
-//
-//		return null;
-//	}
+	@Autowired
+	private BudgetFeignClient feignClient;
+
+	@CircuitBreaker(name = "budgetService", fallbackMethod = "fallbackBudget")
+	@Retry(name = "budgetService")
+	public BudgetDTO getBudget(String budgetId) {
+
+		return feignClient.getBudget(budgetId);
+	}
+
+	public BudgetDTO fallbackBudget(Long budgetId, Exception ex) {
+
+		System.out.println("Fallback executed");
+
+		return null;
+	}
 
 }
