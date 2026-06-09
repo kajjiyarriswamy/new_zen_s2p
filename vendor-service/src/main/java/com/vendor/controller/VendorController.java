@@ -1,12 +1,16 @@
 package com.vendor.controller;
 
 import com.vendor.dto.ApiResponse;
+import com.vendor.dto.ReceiptDTO;
 import com.vendor.dto.VendorDetails;
+import com.vendor.entity.ReceiptHeader;
 import com.vendor.service.VendorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/vendor")
@@ -41,5 +45,18 @@ public class VendorController {
                                                                    @RequestBody VendorDetails vendorDetails) {
         ApiResponse<VendorDetails> resp = vendorService.updateVendor(id, vendorDetails);
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
+    }
+    @PostMapping("/api/receipts")
+    public ResponseEntity<ApiResponse<ReceiptDTO>> createReceiptbyDeliverynote(@RequestBody ReceiptHeader header){
+        ApiResponse<ReceiptDTO>  creq = vendorService.createReceiptbyDelivery(header);
+        return ResponseEntity.status(creq.getStatusCode()).body(creq);
+
+    }
+
+    @PostMapping("/{receiptNumber}/upload-document")
+    public ResponseEntity<ApiResponse<ReceiptHeader>> uploadBudgetDocument(@PathVariable String receiptNumber, @RequestParam("file") MultipartFile file) {
+        ApiResponse<ReceiptHeader>  req = vendorService.createReceiptbyDelivery(receiptNumber,file);
+        return ResponseEntity.status(req.getStatusCode()).body(req);
+
     }
 }
