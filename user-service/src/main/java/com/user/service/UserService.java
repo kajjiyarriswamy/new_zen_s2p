@@ -76,7 +76,11 @@ public class UserService {
                     null, "2026-05-01T08:00:00", "admin", "2026-05-10T08:00:00", "admin");
             return ApiResponse.success(user, "User status updated successfully");
         } catch (Exception e) {
+        	
+        	
+        	
             logger.error("Error updating user status", e);
             return ApiResponse.internalError("Error updating user status");
         }
     }
+}
