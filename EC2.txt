@@ -1,0 +1,542 @@
+# AWS EC2 Spring Boot Microservice Deployment - Complete Hands-on Guide
+
+## 1. Create an EC2 Instance
+
+### What is EC2?
+
+Amazon EC2 (Elastic Compute Cloud) provides a virtual server in the cloud where we can install software and run applications.
+
+### Steps:
+
+1. Login to AWS Management Console.
+2. Search for **EC2**.
+3. Click **Launch Instance**.
+4. Give a name to your server.
+
+Example:
+
+```
+Student-Demo-Server
+```
+
+5. Choose Operating System:
+
+```
+Amazon Linux 2023
+```
+
+6. Choose Instance Type:
+
+```
+t2.micro or t3.micro (Free Tier eligible)
+```
+
+7. Create a new Key Pair and download the `.pem` file.
+
+8. Configure Security Group:
+
+Allow:
+
+* SSH (Port 22) → My IP
+* Application Port (8080) → Anywhere (0.0.0.0/0)
+
+9. Click **Launch Instance**.
+
+10. Wait until the instance status becomes:
+
+```
+Running
+```
+
+---
+
+# 2. Connect to EC2 Server
+
+Connect using EC2 Instance Connect.
+
+Verify the current user:
+
+```bash
+whoami
+```
+
+Output:
+
+```text
+ec2-user
+```
+
+This confirms that we are logged into the Linux server.
+
+---
+
+# 3. Check Operating System
+
+Command:
+
+```bash
+cat /etc/os-release
+```
+
+Purpose:
+
+* Displays Linux distribution details.
+* Confirms that we are using Amazon Linux 2023.
+
+---
+
+# 4. Update the Server Packages
+
+Command:
+
+```bash
+sudo dnf update -y
+```
+
+Purpose:
+
+* Updates all existing packages to the latest versions.
+
+---
+
+# 5. Install Git
+
+Git is used to download source code from GitHub.
+
+Install:
+
+```bash
+sudo dnf install git -y
+```
+
+Verify:
+
+```bash
+git --version
+```
+
+Example output:
+
+```
+git version 2.x.x
+```
+
+---
+
+# 6. Install Java 21
+
+Our Spring Boot application requires Java to run.
+
+Install Java:
+
+```bash
+sudo dnf install java-21-amazon-corretto -y
+```
+
+Verify:
+
+```bash
+java -version
+```
+
+Example:
+
+```
+openjdk version "21"
+```
+
+---
+
+# 7. Install Maven
+
+Maven is used to build Java applications.
+
+Install:
+
+```bash
+sudo dnf install maven -y
+```
+
+Verify:
+
+```bash
+mvn -version
+```
+
+---
+
+# 8. Download Project from GitHub
+
+Clone the repository:
+
+```bash
+git clone https://github.com/kajjiyarriswamy/new_zen_s2p.git
+```
+
+Move inside the project:
+
+```bash
+cd new_zen_s2p
+```
+
+View project folders:
+
+```bash
+ls
+```
+
+Example:
+
+```
+api-gateway
+budget-service
+user-service
+vendor-service
+pr-service
+po-service
+```
+
+---
+
+# 9. Build the API Gateway Service
+
+Move into the API Gateway module:
+
+```bash
+cd api-gateway
+```
+
+Check files:
+
+```bash
+ls
+```
+
+Build the project:
+
+```bash
+mvn clean package
+```
+
+Purpose:
+
+* Downloads dependencies.
+* Compiles source code.
+* Runs tests.
+* Creates executable JAR file.
+
+After successful build:
+
+```bash
+cd target
+ls
+```
+
+Example output:
+
+```
+api-gateway-1.0.jar
+```
+
+---
+
+# 10. Check Application Configuration
+
+Go to the API Gateway resource folder:
+
+```bash
+cd /home/ec2-user/new_zen_s2p/api-gateway
+```
+
+Open configuration:
+
+```bash
+cat src/main/resources/application.yml
+```
+
+Example database configuration:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/batch_hyd
+    username: root
+    password: root
+```
+
+---
+
+# 11. Install MySQL (MariaDB)
+
+Install database server:
+
+```bash
+sudo dnf install mariadb105-server -y
+```
+
+Check version:
+
+```bash
+mysql --version
+```
+
+Start database service:
+
+```bash
+sudo systemctl start mariadb
+```
+
+Check status:
+
+```bash
+sudo systemctl status mariadb
+```
+
+Enable automatic startup:
+
+```bash
+sudo systemctl enable mariadb
+```
+
+---
+
+# 12. Configure MySQL Root User
+
+Login as administrator:
+
+```bash
+sudo mysql
+```
+
+Change root password:
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+FLUSH PRIVILEGES;
+```
+
+---
+
+# 13. Create Application Database
+
+Create database:
+
+```sql
+CREATE DATABASE batch_hyd;
+```
+
+Verify:
+
+```sql
+SHOW DATABASES;
+```
+
+---
+
+# 14. Create Users Table
+
+Use database:
+
+```sql
+USE batch_hyd;
+```
+
+Create table:
+
+```sql
+CREATE TABLE users_table (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL
+);
+```
+
+Verify tables:
+
+```sql
+SHOW TABLES;
+```
+
+---
+
+# 15. Insert Login Data
+
+Insert a sample user:
+
+```sql
+INSERT INTO users_table(username,password,role)
+VALUES(
+    'admin',
+    'admin123',
+    'ADMIN'
+);
+```
+
+Verify:
+
+```sql
+SELECT * FROM users_table;
+```
+
+Exit MySQL:
+
+```sql
+EXIT;
+```
+
+---
+
+# 16. Run the Spring Boot Application
+
+Go to JAR location:
+
+```bash
+cd /home/ec2-user/new_zen_s2p/api-gateway/target
+```
+
+### Run in foreground
+
+```bash
+java -jar api-gateway-1.0.jar
+```
+
+Logs will appear in the terminal.
+
+Stop the application:
+
+```
+Ctrl + C
+```
+
+---
+
+### Run in background (recommended for servers)
+
+```bash
+nohup java -jar api-gateway-1.0.jar > app.log 2>&1 &
+```
+
+The application keeps running even after closing the terminal.
+
+---
+
+# 17. Check Application Logs
+
+View complete logs:
+
+```bash
+cat app.log
+```
+
+View latest logs:
+
+```bash
+tail -50 app.log
+```
+
+---
+
+# 18. Stop the Application
+
+Find Java process:
+
+```bash
+ps -ef | grep java
+```
+
+Example:
+
+```
+ec2-user 29409 java -jar api-gateway-1.0.jar
+```
+
+Stop the process:
+
+```bash
+kill 29409
+```
+
+---
+
+# 19. Start the Application Again
+
+Go to the target folder:
+
+```bash
+cd /home/ec2-user/new_zen_s2p/api-gateway/target
+```
+
+Start:
+
+```bash
+nohup java -jar api-gateway-1.0.jar > app.log 2>&1 &
+```
+
+---
+
+# 20. Test the API
+
+Make sure EC2 Security Group allows:
+
+* Port 22 → SSH access
+* Port 8080 → Application access
+
+Use Postman:
+
+URL:
+
+```
+http://13.236.92.186:8080/auth/login
+```
+
+Method:
+
+```
+POST
+```
+
+Request Body (JSON):
+
+```json
+{
+    "username": "admin",
+    "password": "admin123"
+}
+```
+
+Expected Result:
+
+* The API Gateway receives the request.
+* It validates the user from MySQL.
+* It returns the authentication response.
+
+---
+
+# Complete Deployment Flow
+
+Laptop
+|
+| SSH
+|
+AWS EC2 (Amazon Linux)
+|
+| Git Clone
+|
+Spring Boot Source Code
+|
+| Maven Build
+|
+Executable JAR
+|
+| Connects to
+|
+MariaDB/MySQL Database
+|
+| API exposed on
+|
+Port 8080
+|
+Postman Client
+
+This is a complete real-time deployment process followed by Java developers to manually deploy Spring Boot applications on Linux servers.
