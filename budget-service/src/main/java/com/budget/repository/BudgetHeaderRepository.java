@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface BudgetHeaderRepository extends JpaRepository<BudgetHeaderEntity, Long> {
     Optional<BudgetHeaderEntity> findByBudgetId(String budgetId);
+    long countByDocumentPathIsNull();
 }

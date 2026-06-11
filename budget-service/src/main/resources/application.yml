@@ -23,8 +23,8 @@ spring:
 
 aws:
   s3:
-    bucket-name: new-zen-s2p
-    region: us-east-1
-    endpoint: ""
-    access-key: ""
-    secret-key: ""
+    bucket-name: "{AWS_BUCKET_NAME}"
+    region: "{AWS_REGION}"
+    endpoint: "{AWS_ENDPOINT}"
+    access-key: "{AWS_ACCESS_KEY}"
+    secret-key: "{AWS_SECRET_KEY}"

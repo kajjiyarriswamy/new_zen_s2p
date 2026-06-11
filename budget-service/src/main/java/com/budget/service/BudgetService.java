@@ -1,9 +1,11 @@
 package com.budget.service;
 
+import com.budget.async.BudgetAsyncService;
 import com.budget.dto.ApiResponse;
 import com.budget.dto.BudgetHeader;
-import com.budget.dto.PrData;
 import com.budget.entity.BudgetHeaderEntity;
+import com.budget.exception.InvalidRequestException;
+import com.budget.exception.ResourceNotFoundException;
 import com.budget.kafka.KafkaProducer;
 import com.budget.repository.BudgetHeaderRepository;
 import org.slf4j.Logger;
@@ -22,103 +24,82 @@ public class BudgetService {
 
     private final KafkaProducer kafkaProducer;
     private final BudgetHeaderRepository budgetHeaderRepository;
+    private final BudgetAsyncService budgetAsyncService;
 
-    public BudgetService(KafkaProducer kafkaProducer, BudgetHeaderRepository budgetHeaderRepository) {
+    public BudgetService(KafkaProducer kafkaProducer, BudgetHeaderRepository budgetHeaderRepository,
+                         BudgetAsyncService budgetAsyncService) {
         this.kafkaProducer = kafkaProducer;
         this.budgetHeaderRepository = budgetHeaderRepository;
+        this.budgetAsyncService = budgetAsyncService;
     }
 
     public ApiResponse<List<BudgetHeader>> getAllBudgets() {
-        try {
-            List<BudgetHeaderEntity> entities = budgetHeaderRepository.findAll();
-            List<BudgetHeader> dtos = new ArrayList<>();
-            for (BudgetHeaderEntity e : entities) {
-                dtos.add(toDto(e));
-            }
-            return ApiResponse.success(dtos, "Budgets retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching all budgets", e);
-            return ApiResponse.internalError("Error fetching budgets");
+        List<BudgetHeaderEntity> entities = budgetHeaderRepository.findAll();
+        List<BudgetHeader> dtos = new ArrayList<>();
+        for (BudgetHeaderEntity e : entities) {
+            dtos.add(toDto(e));
         }
+        return ApiResponse.success(dtos, "Budgets retrieved successfully");
     }
 
     public ApiResponse<BudgetHeader> getBudgetById(String budgetId) {
-        try {
-            if (budgetId == null || budgetId.isEmpty()) {
-                return ApiResponse.badRequest("Budget id is required");
-            }
-            Optional<BudgetHeaderEntity> opt = budgetHeaderRepository.findByBudgetId(budgetId);
-            if (!opt.isPresent()) {
-                return ApiResponse.notFound("Budget not found");
-            }
-            return ApiResponse.success(toDto(opt.get()), "Budget retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching budget by id", e);
-            return ApiResponse.internalError("Error fetching budget");
+        if (budgetId == null || budgetId.isEmpty()) {
+            throw new InvalidRequestException("Budget id is required");
         }
+        BudgetHeaderEntity entity = budgetHeaderRepository.findByBudgetId(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found"));
+        return ApiResponse.success(toDto(entity), "Budget retrieved successfully");
     }
 
     public ApiResponse<BudgetHeader> createBudget(BudgetHeader budgetHeader) {
-        try {
-            if (budgetHeader.getBudgetId() == null || budgetHeader.getBudgetId().isEmpty()) {
-                return ApiResponse.badRequest("Budget id is required");
-            }
-            BudgetHeaderEntity entity = toEntity(budgetHeader);
-            entity.setStatus("SUBMITTED");
-            entity.setCreatedTime(LocalDateTime.now());
-            budgetHeaderRepository.save(entity);
-            BudgetHeader dto = toDto(entity);
-            kafkaProducer.send("budget-created", dto);
-            return ApiResponse.created(dto, "Budget created successfully");
-        } catch (Exception e) {
-            logger.error("Error creating budget", e);
-            return ApiResponse.internalError("Error creating budget");
+        if (budgetHeader == null || budgetHeader.getBudgetId() == null || budgetHeader.getBudgetId().isEmpty()) {
+            throw new InvalidRequestException("Budget id is required");
         }
+        if (budgetHeaderRepository.findByBudgetId(budgetHeader.getBudgetId()).isPresent()) {
+            throw new InvalidRequestException("Budget id already exists");
+        }
+        BudgetHeaderEntity entity = toEntity(budgetHeader);
+        entity.setStatus("SUBMITTED");
+        entity.setCreatedTime(LocalDateTime.now());
+        budgetHeaderRepository.save(entity);
+        BudgetHeader dto = toDto(entity);
+        budgetAsyncService.publishBudgetCreatedEvent(dto);
+        return ApiResponse.created(dto, "Budget created successfully");
     }
 
     public ApiResponse<BudgetHeader> updateBudgetStatus(String budgetId, String status) {
-        try {
-            if (budgetId == null || budgetId.isEmpty()) {
-                return ApiResponse.badRequest("Budget id is required");
-            }
-            Optional<BudgetHeaderEntity> opt = budgetHeaderRepository.findByBudgetId(budgetId);
-            if (!opt.isPresent()) {
-                return ApiResponse.notFound("Budget not found");
-            }
-            BudgetHeaderEntity entity = opt.get();
-            entity.setStatus(status);
-            entity.setLastUpdatedTime(LocalDateTime.now());
-            budgetHeaderRepository.save(entity);
-            return ApiResponse.success(toDto(entity), "Budget status updated successfully");
-        } catch (Exception e) {
-            logger.error("Error updating budget status", e);
-            return ApiResponse.internalError("Error updating budget status");
+        if (budgetId == null || budgetId.isEmpty()) {
+            throw new InvalidRequestException("Budget id is required");
         }
+        if (status == null || status.isEmpty()) {
+            throw new InvalidRequestException("Status is required");
+        }
+        BudgetHeaderEntity entity = budgetHeaderRepository.findByBudgetId(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found"));
+        entity.setStatus(status);
+        entity.setLastUpdatedTime(LocalDateTime.now());
+        budgetHeaderRepository.save(entity);
+        return ApiResponse.success(toDto(entity), "Budget status updated successfully");
     }
 
     public ApiResponse<BudgetHeader> updateBudget(String budgetId, BudgetHeader budgetHeader) {
-        try {
-            if (budgetId == null || budgetId.isEmpty()) {
-                return ApiResponse.badRequest("Budget id is required");
-            }
-            Optional<BudgetHeaderEntity> opt = budgetHeaderRepository.findByBudgetId(budgetId);
-            if (!opt.isPresent()) {
-                return ApiResponse.notFound("Budget not found");
-            }
-            BudgetHeaderEntity entity = opt.get();
-            entity.setBudgetName(budgetHeader.getBudgetDescription());
-            entity.setBudgetDescription(budgetHeader.getBudgetDescription());
-            entity.setApproverList(budgetHeader.getApproverList());
-            entity.setAvailableAmount(budgetHeader.getAvailableAmount());
-            entity.setConsumedAmount(budgetHeader.getConsumedAmount());
-            entity.setTotalAmount(budgetHeader.getTotalAmount());
-            entity.setLastUpdatedTime(LocalDateTime.now());
-            budgetHeaderRepository.save(entity);
-            return ApiResponse.success(toDto(entity), "Budget updated successfully");
-        } catch (Exception e) {
-            logger.error("Error updating budget", e);
-            return ApiResponse.internalError("Error updating budget");
+        if (budgetId == null || budgetId.isEmpty()) {
+            throw new InvalidRequestException("Budget id is required");
         }
+        if (budgetHeader == null) {
+            throw new InvalidRequestException("Budget details are required");
+        }
+        BudgetHeaderEntity entity = budgetHeaderRepository.findByBudgetId(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget not found"));
+        entity.setBudgetName(budgetHeader.getBudgetDescription());
+        entity.setBudgetDescription(budgetHeader.getBudgetDescription());
+        entity.setApproverList(budgetHeader.getApproverList());
+        entity.setAvailableAmount(budgetHeader.getAvailableAmount());
+        entity.setConsumedAmount(budgetHeader.getConsumedAmount());
+        entity.setTotalAmount(budgetHeader.getTotalAmount());
+        entity.setLastUpdatedTime(LocalDateTime.now());
+        budgetHeaderRepository.save(entity);
+        return ApiResponse.success(toDto(entity), "Budget updated successfully");
     }
 
     private BudgetHeader toDto(BudgetHeaderEntity e) {

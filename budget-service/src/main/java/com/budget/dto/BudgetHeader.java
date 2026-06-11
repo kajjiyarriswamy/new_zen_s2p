@@ -15,30 +15,11 @@ public class BudgetHeader {
     private String lastUpdatedTime;
     private String lastUpdatedBy;
     private String documentPath;
+    private String budgetName;
 
     public BudgetHeader() {
     }
 
-    public BudgetHeader(String budgetId, String budgetDescription, String requestor, String orgId,
-                        String approverList, String status, double availableAmount, double consumedAmount,
-                        double totalAmount, String createdTime, String createdBy, String lastUpdatedTime,
-                        String lastUpdatedBy,String budgetName) {
-        this.budgetId = budgetId;
-        this.budgetDescription = budgetDescription;
-        this.requestor = requestor;
-        this.orgId = orgId;
-        this.approverList = approverList;
-        this.status = status;
-        this.availableAmount = availableAmount;
-        this.consumedAmount = consumedAmount;
-        this.totalAmount = totalAmount;
-        this.createdTime = createdTime;
-        this.createdBy = createdBy;
-        this.lastUpdatedTime = lastUpdatedTime;
-        this.lastUpdatedBy = lastUpdatedBy;
-        this.budgetName = budgetName;
-
-    }
 
     public String getBudgetId() {
         return budgetId;
@@ -151,4 +132,16 @@ public class BudgetHeader {
     public void setDocumentPath(String documentPath) {
         this.documentPath = documentPath;
     }
+
+
+	public String getBudgetName() {
+		return budgetName;
+	}
+
+
+	public void setBudgetName(String budgetName) {
+		this.budgetName = budgetName;
+	}
+    
+    
 }
