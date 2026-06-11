@@ -7,6 +7,7 @@ import com.budget.entity.BudgetHeaderEntity;
 import com.budget.repository.BudgetHeaderRepository;
 import com.budget.service.BudgetService;
 import com.budget.storage.S3StorageService;
+import org.springframework.beans.factory.ObjectProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +28,15 @@ public class BudgetController {
     private static final Logger logger = LoggerFactory.getLogger(BudgetController.class);
 
     private final BudgetHeaderRepository budgetHeaderRepository;
-    private final com.budget.storage.S3StorageService s3StorageService;
+    private final S3StorageService s3StorageService;
     private final BudgetService budgetService;
     private final BudgetAsyncService budgetAsyncService;
 
     public BudgetController(BudgetHeaderRepository budgetHeaderRepository,
-                            S3StorageService s3StorageService, BudgetService budgetService,
+                            ObjectProvider<S3StorageService> s3StorageServiceProvider, BudgetService budgetService,
                             BudgetAsyncService budgetAsyncService) {
         this.budgetHeaderRepository = budgetHeaderRepository;
-        this.s3StorageService = s3StorageService;
+        this.s3StorageService = s3StorageServiceProvider.getIfAvailable();
         this.budgetService = budgetService;
         this.budgetAsyncService = budgetAsyncService;
     }
@@ -78,6 +79,9 @@ public class BudgetController {
         }
 
         try {
+            if (s3StorageService == null) {
+                return ResponseEntity.status(503).body(ApiResponse.internalError("S3 storage is not configured"));
+            }
             String objectKey = String.format("budget/%s/%s_%s", budgetId, UUID.randomUUID(), file.getOriginalFilename());
             String documentPath = s3StorageService.uploadFile(file, objectKey);
             BudgetHeaderEntity entity = opt.get();
