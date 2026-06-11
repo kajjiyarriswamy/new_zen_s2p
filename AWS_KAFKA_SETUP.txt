@@ -1,0 +1,144 @@
+Option 1: Install Kafka on the same EC2 instance (for learning)
+Step 1: Check Java
+
+Kafka requires Java.
+
+java -version
+
+You already installed Java 21, so this should work.
+
+Step 2: Download Apache Kafka
+
+Go to your home directory:
+
+cd /home/ec2-user
+
+Download Kafka:
+
+wget https://downloads.apache.org/kafka/3.9.1/kafka_2.13-3.9.1.tgz
+
+Extract:
+
+tar -xvf kafka_2.13-3.9.1.tgz
+
+Rename for simplicity:
+
+mv kafka_2.13-3.9.1 kafka
+
+Now your Kafka location is:
+
+/home/ec2-user/kafka
+Step 3: Start Kafka KRaft mode
+
+Modern Kafka can run without Zookeeper.
+
+Go to Kafka directory:
+
+cd /home/ec2-user/kafka
+
+Generate cluster ID:
+
+bin/kafka-storage.sh random-uuid
+
+Example output:
+
+ABCD1234XYZ5678
+
+Format storage:
+
+bin/kafka-storage.sh format -t ABCD1234XYZ5678 -c config/kraft/server.properties
+
+Start Kafka:
+
+bin/kafka-server-start.sh config/kraft/server.properties
+
+You will see Kafka logs.
+
+Step 4: Run Kafka in background
+
+For EC2, use:
+
+nohup bin/kafka-server-start.sh config/kraft/server.properties > kafka.log 2>&1 &
+
+Check logs:
+
+tail -50 kafka.log
+Step 5: Verify Kafka is running
+
+Check the Kafka port:
+
+sudo lsof -i :9092
+
+Expected:
+
+java  12345 ec2-user TCP *:9092 (LISTEN)
+Step 6: Update Spring Boot application.yml
+
+Local configuration might be:
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+If Kafka is on the same EC2
+
+Keep:
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+
+No change required.
+
+If Kafka is on another EC2
+
+Use that EC2 private IP:
+
+spring:
+  kafka:
+    bootstrap-servers: 172.31.x.x:9092
+Step 7: Rebuild your Spring Boot service
+
+Since configuration changed:
+
+cd /home/ec2-user/new_zen_s2p/<service-name>
+
+mvn clean package
+
+Restart the application:
+
+cd target
+
+nohup java -jar your-service.jar > app.log 2>&1 &
+Step 8: Create Kafka topics (if needed)
+
+List topics:
+
+cd /home/ec2-user/kafka
+
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+Create a topic:
+
+bin/kafka-topics.sh \
+--create \
+--topic notification-topic \
+--bootstrap-server localhost:9092
+
+Verify:
+
+bin/kafka-topics.sh \
+--list \
+--bootstrap-server localhost:9092
+Your EC2 architecture will look like this
+                EC2 Instance
+                      |
+        --------------------------------
+        |              |               |
+   API Gateway    Budget Service   User Service
+        |              |
+        |              |
+             Kafka (9092)
+                 |
+             MariaDB (3306)
+                 |
+                 S3 Bucket
