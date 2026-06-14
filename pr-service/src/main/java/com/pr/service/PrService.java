@@ -29,16 +29,18 @@ public class PrService {
     private final PrLineRepository prLineRepository;
     private final BudgetClientService service;
     private final PoClientService poService;
+    private final PrAsyncService prAsyncService;
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {;
+                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService, PrAsyncService prAsyncService) {;
     	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
         this.prLineRepository = prLineRepository;
         this.service= service;
         this.poService = poService;
+        this.prAsyncService = prAsyncService;
     }
 
     public ApiResponse<List<PrData>> getAllPurchaseRequests() {
@@ -118,7 +120,8 @@ public class PrService {
 
             prData.setId(header.getId() == null ? null : String.valueOf(header.getId()));
             prData.setStatus(header.getStatus());
-            kafkaProducer.send("pr-created", prData);
+            prAsyncService.publishPrCreatedEvent(prData);
+
             return ApiResponse.created(prData, "Purchase request created successfully");
         } catch (Exception e) {
             logger.error("Error creating purchase request", e);
