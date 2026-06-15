@@ -54,4 +54,100 @@ public class ReceiptLine {
 
     @Column(name = "status", length = 50)
     private String status;
+
+     public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ReceiptHeader getReceiptHeader() {
+        return receiptHeader;
+    }
+
+    public void setReceiptHeader(ReceiptHeader receiptHeader) {
+        this.receiptHeader = receiptHeader;
+    }
+
+    public Long getDeliveryNoteLineId() {
+        return deliveryNoteLineId;
+    }
+
+    public void setDeliveryNoteLineId(Long deliveryNoteLineId) {
+        this.deliveryNoteLineId = deliveryNoteLineId;
+    }
+
+    public Long getPoLineId() {
+        return poLineId;
+    }
+
+    public void setPoLineId(Long poLineId) {
+        this.poLineId = poLineId;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public BigDecimal getReceivedQuantity() {
+        return receivedQuantity;
+    }
+
+    public void setReceivedQuantity(BigDecimal receivedQuantity) {
+        this.receivedQuantity = receivedQuantity;
+    }
+
+    public BigDecimal getAcceptedQuantity() {
+        return acceptedQuantity;
+    }
+
+    public void setAcceptedQuantity(BigDecimal acceptedQuantity) {
+        this.acceptedQuantity = acceptedQuantity;
+    }
+
+    public BigDecimal getRejectedQuantity() {
+        return rejectedQuantity;
+    }
+
+    public void setRejectedQuantity(BigDecimal rejectedQuantity) {
+        this.rejectedQuantity = rejectedQuantity;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getWarehouseLocation() {
+        return warehouseLocation;
+    }
+
+    public void setWarehouseLocation(String warehouseLocation) {
+        this.warehouseLocation = warehouseLocation;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

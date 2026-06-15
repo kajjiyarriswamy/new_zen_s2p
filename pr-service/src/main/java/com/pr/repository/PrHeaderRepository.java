@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface PrHeaderRepository extends JpaRepository<PrHeader, Long> {
     Optional<PrHeader> findByPrNumber(String prNumber);
+
+    long countByStatus(String submitted);
 }
