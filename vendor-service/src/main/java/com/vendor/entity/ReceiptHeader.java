@@ -60,7 +60,7 @@ public class ReceiptHeader {
     private String documentPath;
     
     @Column(name = "lastUpdated_time")
-    private String lastUpdatedTime;
+    private LocalDateTime lastUpdatedTime;
     
     @OneToMany(mappedBy = "receiptHeader", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ReceiptLine> receiptLines = new ArrayList<>();
@@ -169,11 +169,11 @@ public class ReceiptHeader {
         this.receiptLines = receiptLines;
     }
 
-    public String getLastUpdatedTime() {
+    public LocalDateTime getLastUpdatedTime() {
         return lastUpdatedTime;
     }
 
-    public void setLastUpdatedTime(String lastUpdatedTime) {
+    public void setLastUpdatedTime(LocalDateTime lastUpdatedTime) {
         this.lastUpdatedTime = lastUpdatedTime;
     }
 
