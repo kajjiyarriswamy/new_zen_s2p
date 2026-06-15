@@ -89,11 +89,11 @@ public class PrController {
         return ResponseEntity.status(resp.getStatusCode()).body(resp);
     }
     //  Only prNumber And budgetName getting  
-    @GetMapping("/only/{prNumber}")
-    public ResponseEntity<ApiResponse<PrData1>>getprNubudgetname(@PathVariable String prNumber) {
-    	 ApiResponse<PrData1> resp = prService.getprNubudgetname(prNumber);
-         return ResponseEntity.status(resp.getStatusCode()).body(resp);
-    }
+    // @GetMapping("/only/{prNumber}")
+    // public ResponseEntity<ApiResponse<PrData1>>getprNubudgetname(@PathVariable String prNumber) {
+    // 	 ApiResponse<PrData1> resp = prService.getprNubudgetname(prNumber);
+    //      return ResponseEntity.status(resp.getStatusCode()).body(resp);
+    // }
     
     
 }
