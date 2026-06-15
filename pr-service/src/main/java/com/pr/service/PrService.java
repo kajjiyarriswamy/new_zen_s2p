@@ -4,6 +4,9 @@ import com.pr.dto.*;
 
 import com.pr.entity.PrHeader;
 import com.pr.entity.PrLine;
+import com.pr.exception.InvalidPrIdException;
+import com.pr.exception.PrNotFoundException;
+import com.pr.exception.PrValidationException;
 import com.pr.kafka.KafkaProducer;
 import com.pr.repository.PrHeaderRepository;
 import com.pr.repository.PrLineRepository;
@@ -26,16 +29,18 @@ public class PrService {
     private final PrLineRepository prLineRepository;
     private final BudgetClientService service;
     private final PoClientService poService;
+    private final PrAsyncService prAsyncService;
 
     public PrService(KafkaProducer kafkaProducer,
                      PrHeaderRepository prHeaderRepository,
-                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService) {;
+                     PrLineRepository prLineRepository, BudgetClientService service, PoClientService poService, PrAsyncService prAsyncService) {;
     	
         this.kafkaProducer = kafkaProducer;
         this.prHeaderRepository = prHeaderRepository;
         this.prLineRepository = prLineRepository;
         this.service= service;
         this.poService = poService;
+        this.prAsyncService = prAsyncService;
     }
 
     public ApiResponse<List<PrData>> getAllPurchaseRequests() {
@@ -62,8 +67,11 @@ public class PrService {
 
     public ApiResponse<PrData> getPurchaseRequestByPrNumber(String prNumber) {
         try {
-            if (prNumber == null || prNumber.isEmpty()) return ApiResponse.badRequest("Purchase Request PR number is required");
-            Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
+            if (prNumber == null || prNumber.isEmpty()) {
+                throw new PrValidationException(
+                        "Purchase Request PR number is required");
+            }
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findByPrNumber(prNumber).orElseThrow(() -> new PrNotFoundException("Purchase Request not found")));;
             if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
             PrHeader h = opt.get();
             PrData prData = new PrData();
@@ -95,7 +103,10 @@ public class PrService {
 
     public ApiResponse<PrData> createPurchaseRequest(PrData prData) {
         try {
-            if (prData.getPrNumber() == null || prData.getPrNumber().isEmpty()) return ApiResponse.badRequest("PR Number is required");
+            if (prData.getPrNumber() == null || prData.getPrNumber().isEmpty()){
+                throw new PrValidationException(
+                        "PR Number is required");
+            }
             PrHeader header = new PrHeader();
             header.setPrNumber(prData.getPrNumber());
             header.setPrDescription(prData.getDescription());
@@ -109,7 +120,8 @@ public class PrService {
 
             prData.setId(header.getId() == null ? null : String.valueOf(header.getId()));
             prData.setStatus(header.getStatus());
-            kafkaProducer.send("pr-created", prData);
+            prAsyncService.publishPrCreatedEvent(prData);
+
             return ApiResponse.created(prData, "Purchase request created successfully");
         } catch (Exception e) {
             logger.error("Error creating purchase request", e);
@@ -119,8 +131,7 @@ public class PrService {
 
     public ApiResponse<List<PrLineData>> getPrLines(String prNumber) {
         try {
-            Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
-            if (!opt.isPresent()) return ApiResponse.notFound("PR not found");
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findByPrNumber(prNumber).orElseThrow(() -> new PrNotFoundException("PR not found")));
             PrHeader header = opt.get();
             List<PrLine> lines = prLineRepository.findByPrHeader(header);
             List<PrLineData> dto = new ArrayList<>();
@@ -148,9 +159,11 @@ public class PrService {
 
     public ApiResponse<PrLineData> addPrLine(String prNumber, PrLineData lineData) {
         try {
-            if (lineData.getItem() == null || lineData.getItem().isEmpty()) return ApiResponse.badRequest("Item name is required");
-            Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
-            if (!opt.isPresent()) return ApiResponse.notFound("PR not found");
+            if (lineData.getItem() == null || lineData.getItem().isEmpty()) {
+                throw new PrValidationException(
+                        "Item name is required");
+            };
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findByPrNumber(prNumber).orElseThrow(() -> new PrNotFoundException("PR not found")));
             PrHeader header = opt.get();
             PrLine line = new PrLine();
             line.setPrLineId(lineData.getPrLineId());
@@ -180,11 +193,15 @@ public class PrService {
 
     public ApiResponse<PrData> updatePrStatus(String id, String status) {
         try {
-            if (id == null || id.isEmpty()) return ApiResponse.badRequest("Purchase Request ID is required");
+            if (id == null || id.isEmpty()) {
+                throw new PrValidationException(
+                        "Purchase Request ID is required");
+            }
             Long lid;
-            try { lid = Long.valueOf(id); } catch (NumberFormatException nfe) { return ApiResponse.badRequest("Invalid Purchase Request ID"); }
-            Optional<PrHeader> opt = prHeaderRepository.findById(lid);
-            if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
+            try { lid = Long.valueOf(id); } catch (NumberFormatException nfe) { throw new InvalidPrIdException(id); }
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findById(lid).orElseThrow(() ->
+                                                new PrNotFoundException("Purchase Request not found")));
+
             PrHeader header = opt.get();
             header.setStatus(status);
             header.setLastUpdatedTime(LocalDateTime.now());
@@ -207,11 +224,14 @@ public class PrService {
 
     public ApiResponse<PrData> approvePurchaseRequest(String id) {
         try {
-            if (id == null || id.isEmpty()) return ApiResponse.badRequest("Purchase Request ID is required");
+            if (id == null || id.isEmpty()) {
+                throw new PrValidationException(
+                        "Purchase Request ID is required");
+            }
             Long lid;
-            try { lid = Long.valueOf(id); } catch (NumberFormatException nfe) { return ApiResponse.badRequest("Invalid Purchase Request ID"); }
-            Optional<PrHeader> opt = prHeaderRepository.findById(lid);
-            if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
+            try { lid = Long.valueOf(id); } catch (NumberFormatException nfe) { throw new InvalidPrIdException(id); }
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findById(lid).orElseThrow(() ->
+                                                 new PrNotFoundException("Purchase Request not found")));
             PrHeader header = opt.get();
             header.setStatus("APPROVED");
             header.setLastUpdatedTime(LocalDateTime.now());
@@ -237,14 +257,17 @@ public class PrService {
 
     public ApiResponse<PrData> decidePurchaseRequest(String prNumber, String action, String approver) {
         try {
-            if (prNumber == null || prNumber.isEmpty()) return ApiResponse.badRequest("PR number is required");
-            Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
-            if (!opt.isPresent()) return ApiResponse.notFound("Purchase Request not found");
+            if (prNumber == null || prNumber.isEmpty()) {
+                throw new PrValidationException(
+                        "PR number is required");
+            }
+            Optional<PrHeader> opt = Optional.of(prHeaderRepository.findByPrNumber(prNumber).orElseThrow(() ->
+                                             new PrNotFoundException("Purchase Request not found")));
             PrHeader header = opt.get();
             if ("APPROVED".equalsIgnoreCase(header.getStatus())) {
 
-                return ApiResponse.badRequest(
-                    "Approved PR cannot be modified");
+                throw new PrValidationException(
+                        "Approved PR cannot be modified");
             }
 
 
@@ -313,86 +336,6 @@ public class PrService {
         } catch (Exception e) {
             logger.error("Error approving purchase request", e);
             return ApiResponse.internalError("Error approving purchase request");
-        }
-    }
-
-	public ApiResponse<PrDetailsResponses> getPurchaseRequestDetails(String prNumber) {
-		try {
-
-		    if (prNumber == null || prNumber.trim().isEmpty()) {
-		        return ApiResponse.badRequest("Purchase Request PR number is required");
-		    }
-
-		    Optional<PrHeader> opt = prHeaderRepository.findByPrNumber(prNumber);
-
-		    if (!opt.isPresent()) {
-		        return ApiResponse.notFound("Purchase Request not found");
-		    }
-
-		    PrHeader prData = opt.get();
-
-		    PrDetailsResponses prDetails = new PrDetailsResponses();
-
-		    // PR Details
-		    prDetails.setPrNumber(prData.getPrNumber());
-		    prDetails.setPrDescription(prData.getPrDescription());
-		    prDetails.setRequestor(prData.getRequestor());
-		    prDetails.setPrStatus(prData.getStatus());
-
-		    // Budget Details
-		    BudgetDTO budgetDto = service.getBudget(prData.getBudgetId());
-
-		    if (budgetDto != null) {
-		    	prDetails.setBudgetId(budgetDto.getBudgetId());
-		        prDetails.setBudgetName(budgetDto.getBudgetName());
-		    } else {
-		    	prDetails.setBudgetName("Budget service unavailable");
-		    }
-
-		    // PO Details
-		    PoDTO poData = poService.getPoByPrNumber(prNumber);
-
-		    if (poData != null) {
-		    	prDetails.setPoNumber(poData.getPoNumber());
-		    	prDetails.setPoDescription(poData.getPoDescription());
-		    	prDetails.setPoStatus(poData.getStatus());
-		    } else {
-		    	prDetails.setPoDescription("PO not available");
-		    }
-
-		    return ApiResponse.success(
-		    		prDetails,
-		            "Purchase Request, Budget and PO details retrieved successfully");
-
-		} catch (Exception e) {
-
-		    logger.error("Error fetching purchase request details", e);
-
-		    return ApiResponse.internalError(
-		            "Error fetching purchase request details");
-		}
-	}
-
-    public ApiResponse<PrDetailsResponse> getPrDetails(String prNumber) {
-
-        try {
-            List<PrHeader> headers = prHeaderRepository.findAll();
-            List<PrData> prList = new ArrayList<>();
-            for (PrHeader h : headers) {
-                PrData d = new PrData();
-                d.setId(h.getId() == null ? null : String.valueOf(h.getId()));
-                d.setPrNumber(h.getPrNumber());
-                d.setDepartment(h.getOrgId());
-                d.setRequester(h.getRequestor());
-                d.setBudget(h.getAmount() == null ? 0.0 : h.getAmount());
-                d.setStatus(h.getStatus());
-                d.setDescription(h.getPrDescription());
-                prList.add(d);
-            }
-            return ApiResponse.success((PrDetailsResponse) prList, "Purchase requests retrieved successfully");
-        } catch (Exception e) {
-            logger.error("Error fetching purchase requests", e);
-            return ApiResponse.internalError("Error fetching purchase requests");
         }
     }
 
