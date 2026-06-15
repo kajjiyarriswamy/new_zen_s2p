@@ -2,21 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Build Maven') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'mvn test'
+                dir('api-gateway') {
+                    sh 'mvn clean package'
+                }
             }
         }
     }
