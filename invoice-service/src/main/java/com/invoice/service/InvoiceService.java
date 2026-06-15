@@ -13,15 +13,19 @@ import com.invoice.dto.CreateInvoiceRequestDTO;
 import com.invoice.dto.CreateInvoiceResponseDTO;
 import com.invoice.entity.InvoiceHeader;
 import com.invoice.entity.InvoiceLine;
+import com.invoice.async.InvoiceAsyncService;
 import com.invoice.repository.InvoiceHeaderRepository;
 
 @Service
 public class InvoiceService {
 
     private final InvoiceHeaderRepository invoiceHeaderRepository;
+    private final InvoiceAsyncService invoiceAsyncService;
 
-    public InvoiceService(InvoiceHeaderRepository invoiceHeaderRepository) {
+    public InvoiceService(InvoiceHeaderRepository invoiceHeaderRepository,
+                          InvoiceAsyncService invoiceAsyncService) {
         this.invoiceHeaderRepository = invoiceHeaderRepository;
+        this.invoiceAsyncService = invoiceAsyncService;
     }
 
     @Transactional
@@ -110,6 +114,7 @@ public class InvoiceService {
         response.setTaxAmount(saved.getTaxAmount());
         response.setTotalAmount(saved.getTotalAmount());
         response.setDocumentPath(saved.getDocumentPath());
+        invoiceAsyncService.publishInvoiceCreatedEvent(response);
 
         return response;
     }

@@ -1,7 +1,6 @@
 package com.invoice.controller;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -20,7 +19,9 @@ import com.invoice.dto.CreateInvoiceRequestDTO;
 import com.invoice.dto.CreateInvoiceResponseDTO;
 import com.invoice.dto.UploadDocumentResponseDTO;
 import com.invoice.entity.InvoiceHeader;
+import com.invoice.exception.ResourceNotFoundException;
 import com.invoice.repository.InvoiceHeaderRepository;
+import com.invoice.async.InvoiceAsyncService;
 import com.invoice.service.InvoiceService;
 import com.invoice.storage.S3StorageService;
 
@@ -29,17 +30,21 @@ import com.invoice.storage.S3StorageService;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
-    
     private final InvoiceHeaderRepository invoiceHeaderRepository;
     private final S3StorageService s3StorageService;
+    private final InvoiceAsyncService invoiceAsyncService;
 
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
 
 
-    public InvoiceController(InvoiceService invoiceService, InvoiceHeaderRepository invoiceHeaderRepository, S3StorageService s3StorageService) {
+    public InvoiceController(InvoiceService invoiceService, 
+                             InvoiceHeaderRepository invoiceHeaderRepository, 
+                             S3StorageService s3StorageService,
+                             InvoiceAsyncService invoiceAsyncService) {
         this.invoiceService = invoiceService;
         this.invoiceHeaderRepository = invoiceHeaderRepository;
         this.s3StorageService = s3StorageService;
+        this.invoiceAsyncService = invoiceAsyncService;
     }
 
     @PostMapping("create/invoices")
@@ -65,18 +70,16 @@ public class InvoiceController {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest("Document file is required"));
         }
         
-        Optional<InvoiceHeader> opt = invoiceHeaderRepository.findByInvoiceNumber(invoiceNumber);
-        if (!opt.isPresent()) {
-            return ResponseEntity.status(404).body(ApiResponse.notFound("Invoice not found"));
-        }
+        InvoiceHeader entity = invoiceHeaderRepository.findByInvoiceNumber(invoiceNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found with number: " + invoiceNumber));
 
         try {
             String objectKey = String.format("invoice/%s/%s_%s", invoiceNumber, UUID.randomUUID(), file.getOriginalFilename());
             String documentPath = s3StorageService.uploadFile(file, objectKey);
-            InvoiceHeader entity = opt.get();
             entity.setDocumentPath(documentPath);
             entity.setModifiedDate(LocalDateTime.now());
             invoiceHeaderRepository.save(entity);
+            invoiceAsyncService.auditInvoiceUpload(invoiceNumber, documentPath);
             return ResponseEntity.ok(ApiResponse.success(toDto(entity), "Budget document uploaded successfully"));
         } catch (Exception e) {
             logger.error("Failed to upload budget document", e);
