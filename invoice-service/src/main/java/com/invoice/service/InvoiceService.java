@@ -11,13 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.invoice.dto.CreateInvoiceLineRequestDTO;
 import com.invoice.dto.CreateInvoiceRequestDTO;
 import com.invoice.dto.CreateInvoiceResponseDTO;
+import com.invoice.dto.InvoiceDetailsResponseDTO;
 import com.invoice.entity.InvoiceHeader;
 import com.invoice.entity.InvoiceLine;
 import com.invoice.async.InvoiceAsyncService;
 import com.invoice.repository.InvoiceHeaderRepository;
 
 @Service
-public class InvoiceService {
+public class InvoiceService implements InvoiceServiceImpl {
 
     private final InvoiceHeaderRepository invoiceHeaderRepository;
     private final InvoiceAsyncService invoiceAsyncService;
@@ -118,4 +119,31 @@ public class InvoiceService {
 
         return response;
     }
+    @Override
+	public InvoiceDetailsResponseDTO getInvoiceDetails(String invoiceNumber) {
+		
+    	InvoiceHeader ih = invoiceHeaderRepository.findByInvoiceNumber(invoiceNumber)
+    			.orElseThrow(() -> new RuntimeException("Invoice Not Found"));
+    	
+    	InvoiceDetailsResponseDTO res = new InvoiceDetailsResponseDTO();
+    	
+    	res.setInvoiceNumber(ih.getInvoiceNumber());
+    	res.setInvoiceDate(ih.getInvoiceDate());
+    	res.setVendorId(ih.getVendorId());
+    	res.setVendorCode(ih.getVendorCode());
+    	res.setVendorName(ih.getVendorName());
+    	res.setReceiptHeaderId(ih.getReceiptHeaderId());
+    	res.setCurrencyCode(ih.getCurrencyCode());
+    	res.setInvoiceAmount(ih.getInvoiceAmount());
+    	res.setTaxAmount(ih.getTaxAmount());
+    	res.setTotalAmount(ih.getTotalAmount());
+    	res.setPaymentTerms(ih.getPaymentTerms());
+    	res.setDueDate(ih.getDueDate());
+    	res.setStatus(ih.getStatus());
+    	res.setRemarks(ih.getRemarks());
+    	res.setDocumentPath(ih.getDocumentPath());
+    	res.setInvoiceLines(ih.getInvoiceLines());
+    	
+    	return res;
+	}
 }
