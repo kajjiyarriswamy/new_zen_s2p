@@ -1,13 +1,35 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven'
+    }
+
     stages {
+
         stage('Build') {
             steps {
                 dir('api-gateway') {
                     sh 'mvn clean package'
                 }
             }
+        }
+
+        stage('Test') {
+            steps {
+                dir('api-gateway') {
+                    sh 'mvn test'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'API Gateway build successful'
+        }
+        failure {
+            echo 'Build failed'
         }
     }
 }
