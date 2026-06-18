@@ -1,13 +1,77 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven3'   // Must match the name you gave in Jenkins Tools
+        jdk 'JDK17'      // Must match the name you gave in Jenkins Tools
+    }
+
+    environment {
+        APP_NAME = 'api-gateway'
+    }
+
     stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'github-credentials',  // ID from Jenkins Credentials
+                    url: 'https://github.com/<username>/<repository>.git'
+            }
+        }
+
         stage('Build') {
             steps {
                 dir('api-gateway') {
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests'
                 }
             }
+        }
+
+        stage('Test') {
+            steps {
+                dir('api-gateway') {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('api-gateway') {
+                    sh 'docker build -t api-gateway:${BUILD_NUMBER} .'
+                }
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                sh '''
+                    docker stop api-gateway || true
+                    docker rm api-gateway || true
+                    docker run -d \
+                        --name api-gateway \
+                        -p 8081:8080 \
+                        api-gateway:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        always {
+            cleanWs()  // Clean workspace after build
         }
     }
 }
