@@ -2,21 +2,15 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'   // Must match the name you gave in Jenkins Tools
-        jdk 'JDK17'      // Must match the name you gave in Jenkins Tools
-    }
-
-    environment {
-        APP_NAME = 'api-gateway'
+        jdk 'JDK21'
+        maven 'Maven'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'github-credentials',  // ID from Jenkins Credentials
-                    url: 'https://github.com/<username>/<repository>.git'
+                checkout scm
             }
         }
 
@@ -28,50 +22,26 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                dir('api-gateway') {
-                    sh 'mvn test'
-                }
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-
         stage('Docker Build') {
             steps {
                 dir('api-gateway') {
-                    sh 'docker build -t api-gateway:${BUILD_NUMBER} .'
+                    sh 'docker build -t api-gateway .'
                 }
             }
         }
 
-        stage('Docker Run') {
+        stage('Deploy') {
             steps {
                 sh '''
-                    docker stop api-gateway || true
-                    docker rm api-gateway || true
-                    docker run -d \
-                        --name api-gateway \
-                        -p 8081:8080 \
-                        api-gateway:${BUILD_NUMBER}
+                docker stop api-gateway || true
+                docker rm api-gateway || true
+
+                docker run -d \
+                --name api-gateway \
+                -p 8081:8080 \
+                api-gateway
                 '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
-        always {
-            cleanWs()  // Clean workspace after build
         }
     }
 }
