@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'JDK21'
-        maven 'Maven'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -14,7 +9,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build API Gateway') {
             steps {
                 dir('api-gateway') {
                     sh 'mvn clean package -DskipTests'
@@ -22,25 +17,31 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Build Docker Image') {
             steps {
                 dir('api-gateway') {
-                    sh 'docker build -t api-gateway .'
+                    sh 'docker build -t api-gateway:latest .'
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Container') {
             steps {
                 sh '''
                 docker stop api-gateway || true
                 docker rm api-gateway || true
 
                 docker run -d \
-                --name api-gateway \
-                -p 8081:8080 \
-                api-gateway
+                  --name api-gateway \
+                  -p 8082:8083 \
+                  api-gateway:latest
                 '''
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh 'docker ps'
             }
         }
     }
