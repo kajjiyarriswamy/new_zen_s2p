@@ -1,9 +1,4 @@
-services:
-  discovery-server:
-    build: ./discovery-server
-    container_name: discovery-server
-    ports:
-      - "8761:8761"
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
